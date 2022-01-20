@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::middleware('preventBackHistory')->get('/', [App\Http\Controllers\Login::class, 'index'])->name('auth');
+
+Route::prefix('/')->namespace('App\Http\Controllers')->group(function () {
+    Route::get('auth', 'Login@index');
+    Route::post('auth', 'Login@process')->name('auth.process');
+    Route::get('logout', 'Login@logout')->name('auth.logout');
+});
+
+Route::middleware(['auth.user', 'preventBackHistory'])->prefix('user')->namespace('App\Http\Controllers')->group(function () {
+    Route::get('/', 'User@index')->name('user.index');
 });
