@@ -62,5 +62,11 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo('App\Models\Role');
+        // return $this->belongsTo('App\Models\Role', 'role_id'); // di identifikasi kolom foreign key jika nama function beda dengan nama tabel join
+    }
+
+    public function log_login()
+    {
+        return $this->hasMany('App\Models\LogLogin');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LogLogin;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,9 +36,14 @@ class Login extends Controller
         $remember = $request->has('remember') ? true : false;
 
         if (Auth::attempt(['username' => $user, 'password' => $pass, 'active' => 1], $remember)) {
-            // Authentication passed...
+
+            LogLogin::create([
+                'user_id' => Auth::user()->id,
+                'ip_address' => $request->ip(),
+            ]);
+
             session()->put('log', Auth::user()->role->nama_role);
-            // dd(session('log'));
+
             return redirect()->route('user.index');
         } else {
             return redirect()->route('auth')->with('alert', 'Username atau password salah!')->withInput();
