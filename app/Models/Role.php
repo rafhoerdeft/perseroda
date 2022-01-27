@@ -11,6 +11,9 @@ class Role extends Model
 
     protected $table = 'role';
 
+    protected $guarded = []; // can insert all column
+
+
     public function user()
     {
         return $this->hasMany('App\Models\User');

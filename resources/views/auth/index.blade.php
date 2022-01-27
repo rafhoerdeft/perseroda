@@ -17,6 +17,21 @@
     <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/icons.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/plugins/notifications/css/lobibox.min.css') }}" />
+
+    <style>
+        body {
+            background: #f0f1f5;
+        }
+
+        .authentication-header {
+            background-image: url("{{ asset('assets/images/bg-themes/4.png') }}") !important;
+        }
+
+        .btn-login {
+            background: #61379b !important
+        }
+
+    </style>
 </head>
 
 <body>
@@ -78,11 +93,12 @@
                                                 <label for="password" class="form-label">
                                                     Password
                                                 </label>
-                                                <div class="input-group has-validation" id="show_hide_password">
+                                                <div class="input-group" id="show_hide_password">
                                                     <input type="password"
                                                         class="form-control border-end-0 @error('password') is-invalid @enderror"
                                                         id="password" name="password" placeholder="Enter Password">
-                                                    <a href="javascript:;" class="input-group-text bg-transparent">
+                                                    <a href="javascript:void(0);"
+                                                        class="input-group-text bg-transparent">
                                                         <i class='bx bx-hide'></i>
                                                     </a>
                                                     @error('password')
@@ -107,7 +123,7 @@
 
                                             <div class="col-12">
                                                 <div class="d-grid">
-                                                    <button type="submit" class="btn btn-primary"><i
+                                                    <button type="submit" class="btn btn-primary btn-login"><i
                                                             class="bx bxs-lock-open"></i>Login</button>
                                                 </div>
                                             </div>

@@ -1,83 +1,81 @@
-
 html.color-header .topbar .navbar-nav .nav-link {
 
-	color: #ffffff;
+    color: #ffffff;
 
 }
 
 html.color-header .topbar .top-menu-left .nav-item .nav-link {
 
-	color: #ffffff;
-	
+    color: #ffffff;
+
 }
 
 html.color-header .search-bar input {
 
-	color: #413f3f;
+    color: #413f3f;
 
-	background-color: #ffffff !important;
+    background-color: #ffffff !important;
 
-	;
+    ;
 
-	border: 1px solid rgb(241 241 241 / 15%) !important;
+    border: 1px solid rgb(241 241 241 / 15%) !important;
 
-	box-shadow: inset 0 1px 2px rgb(0 0 0 / 0%);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0%);
 
 }
 
 html.color-header .search-bar input:focus {
 
-	box-shadow: 0 0 0 .25rem rgba(255, 255, 255, 0.25)
-
+    box-shadow: 0 0 0 .25rem rgba(255, 255, 255, 0.25)
 }
 
 html.color-header .search-bar input::placeholder {
 
-	color: #08090a !important;
+    color: #08090a !important;
 
-	opacity: .5 !important;
+    opacity: .5 !important;
 
-	/* Firefox */
+    /* Firefox */
 
 }
 
 html.color-header::placeholder {
 
-	color: #08090a !important;
+    color: #08090a !important;
 
-	opacity: .5 !important;
+    opacity: .5 !important;
 
-	/* Firefox */
+    /* Firefox */
 
 }
 
 html.color-header .search-show {
 
-	color: #221f1f;
+    color: #221f1f;
 
 }
 
 html.color-header .user-info .user-name {
 
-	color: #ffffff;
+    color: #ffffff;
 
 }
 
 html.color-header .user-info .designattion {
 
-	color: #ffffff;
+    color: #ffffff;
 
 }
 
 html.color-header .user-box {
 
-	border-left: 1px solid rgb(255 255 255 / 0.35) !important;
+    border-left: 1px solid rgb(255 255 255 / 0.35) !important;
 
 }
 
 html.color-header .mobile-toggle-menu {
 
-	color: #ffffff;
+    color: #ffffff;
 
 }
 
@@ -85,97 +83,97 @@ html.color-header .mobile-toggle-menu {
 
 .switcher-body .headercolor1 {
 
-	background: #0727d7 !important;
+    background: #0727d7 !important;
 
 }
 
 .switcher-body .headercolor2 {
 
-	background: #23282c !important;
+    background: #23282c !important;
 
 }
 
 .switcher-body .headercolor3 {
 
-	background: #e10a1f !important;
+    background: #e10a1f !important;
 
 }
 
 .switcher-body .headercolor4 {
 
-	background: #157d4c !important;
+    background: #157d4c !important;
 
 }
 
 .switcher-body .headercolor5 {
 
-	background: #673ab7 !important;
+    background: #673ab7 !important;
 
 }
 
 .switcher-body .headercolor6 {
 
-	background: #795548 !important;
+    background: #795548 !important;
 
 }
 
 .switcher-body .headercolor7 {
 
-	background: #d3094e !important;
+    background: #d3094e !important;
 
 }
 
 .switcher-body .headercolor8 {
 
-	background: #ff9800 !important;
+    background: #ff9800 !important;
 
 }
 
 html.headercolor1 .topbar {
 
-	background: #0727d7;
+    background: #0727d7;
 
 }
 
 html.headercolor2 .topbar {
 
-	background: #23282c;
+    background: #23282c;
 
 }
 
 html.headercolor3 .topbar {
 
-	background: #e10a1f;
+    background: #e10a1f;
 
 }
 
 html.headercolor4 .topbar {
 
-	background: #157d4c;
+    background: #157d4c;
 
 }
 
 html.headercolor5 .topbar {
 
-	background: #673ab7;
+    background: #673ab7;
 
 }
 
 html.headercolor6 .topbar {
 
-	background: #795548;
+    background: #795548;
 
 }
 
 html.headercolor7 .topbar {
 
-	background: #d3094e;
+    background: #d3094e;
 
 }
 
 html.headercolor8 .topbar {
 
-	background: #ff9800;
+    background: #ff9800;
 
 }
 
@@ -185,21 +183,23 @@ html.headercolor8 .topbar {
 /* sidebar color */
 
 
-html.color-sidebar .sidebar-wrapper{
-	background-color: #171717;
+html.color-sidebar .sidebar-wrapper {
+    background-color: #171717;
     border-right: 1px solid rgb(228 228 228 / 0%);
 }
-html.color-sidebar .sidebar-header{
-	background-color: transparent;
+
+html.color-sidebar .sidebar-header {
+    background-color: transparent;
     border-right: 1px solid #e4e4e400;
     border-bottom: 1px solid rgb(255 255 255 / 15%);
 }
+
 html.color-sidebar .logo-icon {
     filter: invert(1) grayscale(100%) brightness(200%);
 }
 
-html.color-sidebar .menu-label{
-	color: rgb(255 255 255 / 65%);
+html.color-sidebar .menu-label {
+    color: rgb(255 255 255 / 65%);
 }
 
 html.color-sidebar .sidebar-wrapper .sidebar-header .logo-text {
@@ -211,10 +211,13 @@ html.color-sidebar .sidebar-wrapper .sidebar-header .toggle-icon {
 }
 
 html.color-sidebar .simplebar-scrollbar:before {
-	background: rgba(255, 255, 255, .4)
+    background: rgba(255, 255, 255, .4)
 }
 
-html.color-sidebar .sidebar-wrapper .metismenu .mm-active>a, html.color-sidebar .sidebar-wrapper .metismenu a:active, html.color-sidebar .sidebar-wrapper .metismenu a:focus, html.color-sidebar .sidebar-wrapper .metismenu a:hover {
+html.color-sidebar .sidebar-wrapper .metismenu .mm-active>a,
+html.color-sidebar .sidebar-wrapper .metismenu a:active,
+html.color-sidebar .sidebar-wrapper .metismenu a:focus,
+html.color-sidebar .sidebar-wrapper .metismenu a:hover {
     color: #fff;
     text-decoration: none;
     background: rgb(255 255 255 / 18%);
@@ -239,28 +242,35 @@ html.color-sidebar .sidebar-wrapper {
 
 
 .switcher-wrapper .sidebarcolor1 {
-	background-image: url(../images/bg-themes/1.png);
+    background-image: url(../images/bg-themes/1.png);
 }
+
 .switcher-wrapper .sidebarcolor2 {
-	background-image: url(../images/bg-themes/2.png);
+    background-image: url(../images/bg-themes/2.png);
 }
+
 .switcher-wrapper .sidebarcolor3 {
-	background-image: url(../images/bg-themes/3.png);
+    background-image: url(../images/bg-themes/3.png);
 }
+
 .switcher-wrapper .sidebarcolor4 {
-	background-image: url(../images/bg-themes/4.png);
+    background-image: url(../images/bg-themes/4.png);
 }
+
 .switcher-wrapper .sidebarcolor5 {
-	background-image: url(../images/bg-themes/5.png);
+    background-image: url(../images/bg-themes/5.png);
 }
+
 .switcher-wrapper .sidebarcolor6 {
-	background-image: url(../images/bg-themes/6.png);
+    background-image: url(../images/bg-themes/6.png);
 }
+
 .switcher-wrapper .sidebarcolor7 {
-	background-image: url(../images/bg-themes/7.png);
+    background-image: url(../images/bg-themes/7.png);
 }
+
 .switcher-wrapper .sidebarcolor8 {
-	background-image: url(../images/bg-themes/8.png);
+    background-image: url(../images/bg-themes/8.png);
 }
 
 
@@ -297,5 +307,3 @@ html.color-sidebar.sidebarcolor7 .sidebar-wrapper {
 html.color-sidebar.sidebarcolor8 .sidebar-wrapper {
     background-image: url(../images/bg-themes/8.png);
 }
-
-

@@ -11,7 +11,7 @@ class LogLogin extends Model
 
     protected $table = 'log_login';
 
-    protected $guarded = [];
+    protected $guarded = []; // can insert all column
 
     public function user()
     {

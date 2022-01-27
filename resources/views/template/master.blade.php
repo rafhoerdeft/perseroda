@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ app()->getLocale() }}" class="color-sidebar sidebarcolor1">
+<html lang="{{ app()->getLocale() }}" class="color-sidebar {{ Auth::user()->role->color }}">
 
 <head>
     @include('template.meta')
@@ -18,8 +18,8 @@
     <link href="{{ asset('assets/css/icons.css') }}" rel="stylesheet">
 
     <!-- Theme Style CSS -->
-    {{-- <link rel="stylesheet" href="{{ asset() }}assets/css/dark-theme.css" /> --}}
-    {{-- <link rel="stylesheet" href="{{ asset() }}assets/css/semi-dark.css" /> --}}
+    {{-- <link rel="stylesheet" href="{{ asset('assets/css/dark-theme.css') }}" /> --}}
+    {{-- <link rel="stylesheet" href="{{ asset('assets/css/semi-dark.css') }}" /> --}}
     <link rel="stylesheet" href="{{ asset('assets/css/header-colors.css') }}" />
 
     <!-- Plugin CSS tambahan -->
@@ -39,7 +39,7 @@
                     <img src="{{ asset('assets/images/logo-icon.png') }}" class="logo-icon" alt="logo icon">
                 </div>
                 <div>
-                    <h4 class="logo-text">Synadmin</h4>
+                    <h4 class="logo-text">Simperda</h4>
                 </div>
                 <div class="toggle-icon ms-auto"><i class='bx bx-first-page'></i>
                 </div>
@@ -515,7 +515,6 @@
     <script src="{{ asset('assets/plugins/simplebar/js/simplebar.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/metismenu/js/metisMenu.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js') }}"></script>
-
     <!--app JS-->
     <script src="{{ asset('assets/js/app.js') }}"></script>
 
