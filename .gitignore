@@ -1,6 +1,8 @@
 /node_modules
+/app/Helper
 /public/hot
 /public/storage
+/public/theme
 /storage/*.key
 /storage
 /vendor
