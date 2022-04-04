@@ -12,7 +12,8 @@
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "laravel/ui": "^3.4"
+        "laravel/ui": "^3.4",
+        "yajra/laravel-datatables-oracle": "^9.19"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
@@ -30,7 +31,11 @@
         },
         "files": [
             "app/Helper/text_helper.php",
-            "app/Helper/global_helper.php"
+            "app/Helper/global_helper.php",
+            "app/Helper/encrypt_helper.php",
+            "app/Helper/alert_helper.php",
+            "app/Helper/autocode_helper.php",
+            "app/Helper/uang_helper.php"
         ]
     },
     "autoload-dev": {

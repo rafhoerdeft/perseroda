@@ -28,7 +28,71 @@
         }
 
         .btn-login {
-            background: #61379b !important
+            /* font-family: Montserrat-Bold; */
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #e0e0e0;
+            text-align: center;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            vertical-align: middle;
+
+            width: 100%;
+            /* height: 40px; */
+            border-radius: 0.25rem;
+            border: 0px;
+            background: #61379b;
+
+            display: inline-block;
+            /* display: -webkit-box;
+            display: -webkit-flex;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: flex; */
+
+            justify-content: center;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+
+            -webkit-transition: all 0.4s;
+            -o-transition: all 0.4s;
+            -moz-transition: all 0.4s;
+            transition: all 0.4s;
+
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-login::before {
+            content: "";
+            display: block;
+            position: absolute;
+            z-index: -1;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.25rem;
+            top: 0;
+            left: 0;
+            background: #c3428a;
+            background: -webkit-linear-gradient(left, #28a8af, #c3428a);
+            background: -o-linear-gradient(left, #28a8af, #c3428a);
+            background: -moz-linear-gradient(left, #28a8af, #c3428a);
+            background: linear-gradient(left, #28a8af, #c3428a);
+            -webkit-transition: all 0.4s;
+            -o-transition: all 0.4s;
+            -moz-transition: all 0.4s;
+            transition: all 0.4s;
+            opacity: 0;
+        }
+
+        .btn-login:hover {
+            background: transparent;
+            color: #fff;
+        }
+
+        .btn-login:hover:before {
+            opacity: 1;
         }
 
     </style>
@@ -36,7 +100,7 @@
 
 <body>
     <!--wrapper-->
-    <div class="wrapper">
+    <div class="wrapper" style="position:unset;">
         <div class="authentication-header"></div>
         <div class="section-authentication-signin d-flex align-items-center justify-content-center my-5 my-lg-0">
             <div class="container-fluid">
@@ -48,8 +112,10 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="p-4 rounded">
-                                    <div class="text-center">
-                                        <h3 class="">Login Panel</h3>
+                                    <div class="text-center mb-4">
+                                        <h3 class="" style="font-family: fantasy; color: #8f5d9f;">
+                                            Login Panel
+                                        </h3>
                                         {{-- <p>
                                             Don't have an account yet?
                                             <a href="authentication-signup.html">
@@ -80,7 +146,7 @@
                                             <div class="col-12">
                                                 <label for="username" class="form-label">Username</label>
                                                 <input type="text" name="username"
-                                                    class="form-control @error('password') is-invalid @enderror"
+                                                    class="form-control @error('username') is-invalid @enderror"
                                                     id="username" placeholder="Enter Username"
                                                     value="{{ old('username') }}">
                                                 @error('username')
@@ -121,9 +187,9 @@
                                                     href="authentication-forgot-password.html">Forgot Password ?</a>
                                             </div> --}}
 
-                                            <div class="col-12">
+                                            <div class="col-12 mt-4">
                                                 <div class="d-grid">
-                                                    <button type="submit" class="btn btn-primary btn-login"><i
+                                                    <button type="submit" class="btn btn-login"><i
                                                             class="bx bxs-lock-open"></i>Login</button>
                                                 </div>
                                             </div>

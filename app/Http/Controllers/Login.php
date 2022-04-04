@@ -13,14 +13,14 @@ class Login extends Controller
     public function __construct()
     {
         if (Auth::viaRemember()) {
-            return redirect()->route('user.index');
+            return redirect()->route('user.dash');
         }
     }
 
     public function index()
     {
         Auth::logout();
-        Session::forget('log');
+        Session::forget(['log', 'nav']);
         return view('auth/index');
     }
 
@@ -43,8 +43,9 @@ class Login extends Controller
             ]);
 
             session()->put('log', Auth::user()->role->nama_role);
+            session()->put('log_user_id', Auth::user()->id);
 
-            return redirect()->route('user.index');
+            return redirect()->route('dash');
         } else {
             return redirect()->route('auth')->with('alert', 'Username atau password salah!')->withInput();
         }

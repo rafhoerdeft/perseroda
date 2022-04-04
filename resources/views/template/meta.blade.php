@@ -11,6 +11,8 @@
 <meta name="keywords" content="perseroda, kabupaten magelang">
 <meta name="author" content="RAFHO - DISKOMINFO KAB MAGELANG">
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <title>Simperda – Kab. Magelang</title>
 
 <link rel="apple-touch-icon" href="{{ asset('assets/images/favicon-32x32.png') }}">

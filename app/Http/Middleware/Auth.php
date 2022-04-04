@@ -14,16 +14,16 @@ class Auth
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, $roles)
     {
-        $role = ['akuntansi', 'bendahara', 'operator'];
         $log = $request->session()->get('log');
+        $role = explode(';', $roles);
         if (!in_array($log, $role)) {
 ?>
-
             <script>
                 alert('Silahkan login dahulu!');
-                document.location = window.history.back();
+                // document.location = window.history.back();
+                document.location = "<?= url('/') ?>";
             </script>
 <?php
         }
