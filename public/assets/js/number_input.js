@@ -6,6 +6,23 @@ function numberInput(evt) {
     return true;
 }
 
+function checkNumber(data, event) {
+    var jml = $(data).val();
+    var min = parseInt($(data).attr('min'));
+    var max = parseInt($(data).attr('max'));
+    if (parseInt(jml.replaceAll('.', '')) < min) {
+        $(data).val(min);
+    }
+    if (jml == '') {
+        if (event.type == 'blur') {
+            $(data).val(min);
+        }
+    }
+    if (parseInt(jml.replaceAll('.', '')) > max) {
+        $(data).val(max);
+    }
+}
+
 function changeRupe(data) {
     var val = formatRupiah($(data).val(), 'Rp. ');
     $(data).val(val);

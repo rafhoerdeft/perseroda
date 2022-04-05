@@ -13,7 +13,7 @@
         @endif
         <th>No. Order</th>
         <th>Nama Kustomer</th>
-        <th>Waktu Order</th>
+        <th>Tanggal Order</th>
         {{-- <th>Status Order</th> --}}
         {{-- <th>Jenis Order</th> --}}
         <th>Status Bayar</th>

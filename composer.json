@@ -35,7 +35,8 @@
             "app/Helper/encrypt_helper.php",
             "app/Helper/alert_helper.php",
             "app/Helper/autocode_helper.php",
-            "app/Helper/uang_helper.php"
+            "app/Helper/uang_helper.php",
+            "app/Helper/date_helper.php"
         ]
     },
     "autoload-dev": {

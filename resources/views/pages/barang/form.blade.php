@@ -59,7 +59,8 @@
                         <div class="col-md-6">
                             <label for="harga" class="form-label">Harga Barang</label>
                             <input type="text" class="form-control @error('harga') is-invalid @enderror" id="harga"
-                                name="harga" onkeypress="return numberInput(event);" onkeyup="changeRupe(this)"
+                                name="harga" onblur="checkNumber(this, event)" onkeypress="return numberInput(event);"
+                                onkeyup="checkNumber(this, event); changeRupe(this);" min="1" max="999999999"
                                 value="{{ old('harga') ?? (isset($barang) ? nominal($barang->tarif->harga) : '') }}">
                             @error('harga')
                                 <div class="invalid-feedback">
@@ -70,7 +71,8 @@
                         <div class="col-md-6">
                             <label for="stok_barang" class="form-label">Stok Barang</label>
                             <input type="number" class="form-control @error('stok_barang') is-invalid @enderror"
-                                id="stok_barang" name="stok_barang" min="1"
+                                id="stok_barang" name="stok_barang" min="1" max="10000" onblur="checkNumber(this, event)"
+                                onkeypress="return numberInput(event);" onkeyup="checkNumber(this, event)"
                                 value="{{ old('stok_barang') ?? (isset($barang) ? $barang->stok_barang : '') }}">
                             @error('stok_barang')
                                 <div class="invalid-feedback">
@@ -81,7 +83,8 @@
                         <div class="col-md-6">
                             <label for="stok_minimal" class="form-label">Stok Minimal</label>
                             <input type="number" class="form-control @error('stok_minimal') is-invalid @enderror"
-                                id="stok_minimal" name="stok_minimal" min="1"
+                                id="stok_minimal" name="stok_minimal" min="1" max="10000" onblur="checkNumber(this, event)"
+                                onkeypress="return numberInput(event);" onkeyup="checkNumber(this, event)"
                                 value="{{ old('stok_minimal') ?? (isset($barang) ? $barang->stok_minimal : '') }}">
                             @error('stok_minimal')
                                 <div class="invalid-feedback">
