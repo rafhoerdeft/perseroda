@@ -45,3 +45,11 @@ function formatRupiah(angka, prefix) {
     rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
     return prefix == undefined ? rupiah : (rupiah ? rupiah : '');
 }
+
+function twoDigitNumber(numb) {
+    if (parseInt(numb) < 10) {
+        return '0' + numb;
+    } else {
+        return numb;
+    }
+}

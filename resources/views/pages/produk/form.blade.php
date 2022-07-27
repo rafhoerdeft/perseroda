@@ -3,7 +3,7 @@
 {{-- @section('button-top')
     <div class="row">
         <div class="col-md-12">
-            <a href="{{ route('barang.list') }}" class="btn btn-primary w-100">
+            <a href="{{ route('produk.list') }}" class="btn btn-primary w-100">
                 <i class="bx bx-left-arrow-circle"></i>Kembali
             </a>
         </div>
@@ -22,46 +22,46 @@
                             <h5 class="mb-0 text-primary">{{ $form_title }}</h5>
                         </div>
                         <div class="ms-auto">
-                            <a href="{{ route('barang.list') }}" class="btn btn-primary w-100">
+                            <a href="{{ route('produk.list') }}" class="btn btn-primary w-100">
                                 <i class="bx bx-left-arrow-circle"></i>Kembali
                             </a>
                         </div>
                     </div>
 
                     <hr>
-                    <form class="row g-3" method="POST" action="{{ url('barang/save') }}">
+                    <form class="row g-3" method="POST" action="{{ url('produk/save') }}">
                         @csrf
 
-                        <input type="hidden" name="barang_id" value="{{ isset($barang) ? encode($barang->id) : '' }}">
+                        <input type="hidden" name="produk_id" value="{{ isset($produk) ? encode($produk->id) : '' }}">
 
                         <div class="col-md-12">
-                            <label for="nama_barang" class="form-label">Nama Barang</label>
-                            <input type="text" class="form-control @error('nama_barang') is-invalid @enderror"
-                                id="nama_barang" name="nama_barang"
-                                value="{{ old('nama_barang') ?? (isset($barang) ? $barang->nama_barang : '') }}">
-                            @error('nama_barang')
+                            <label for="nama_produk" class="form-label">Nama Produk</label>
+                            <input type="text" class="form-control @error('nama_produk') is-invalid @enderror"
+                                id="nama_produk" name="nama_produk"
+                                value="{{ old('nama_produk') ?? (isset($produk) ? $produk->nama_produk : '') }}">
+                            @error('nama_produk')
                                 <div class="invalid-feedback">
                                     {{ $message }}
                                 </div>
                             @enderror
                         </div>
                         <div class="col-md-6">
-                            <label for="satuan_barang" class="form-label">Satuan Barang</label>
-                            <input type="text" class="form-control @error('satuan_barang') is-invalid @enderror"
-                                id="satuan_barang" name="satuan_barang"
-                                value="{{ old('satuan_barang') ?? (isset($barang) ? $barang->satuan_barang : '') }}">
-                            @error('satuan_barang')
+                            <label for="satuan_produk" class="form-label">Satuan Produk</label>
+                            <input type="text" class="form-control @error('satuan_produk') is-invalid @enderror"
+                                id="satuan_produk" name="satuan_produk"
+                                value="{{ old('satuan_produk') ?? (isset($produk) ? $produk->satuan_produk : '') }}">
+                            @error('satuan_produk')
                                 <div class="invalid-feedback">
                                     {{ $message }}
                                 </div>
                             @enderror
                         </div>
                         <div class="col-md-6">
-                            <label for="harga" class="form-label">Harga Barang</label>
+                            <label for="harga" class="form-label">Harga Produk</label>
                             <input type="text" class="form-control @error('harga') is-invalid @enderror" id="harga"
                                 name="harga" onblur="checkNumber(this, event)" onkeypress="return numberInput(event);"
                                 onkeyup="checkNumber(this, event); changeRupe(this);" min="1" max="999999999"
-                                value="{{ old('harga') ?? (isset($barang) ? nominal($barang->tarif->harga) : '') }}">
+                                value="{{ old('harga') ?? (isset($produk) ? nominal($produk->tarif->harga) : '') }}">
                             @error('harga')
                                 <div class="invalid-feedback">
                                     {{ $message }}
@@ -69,12 +69,13 @@
                             @enderror
                         </div>
                         <div class="col-md-6">
-                            <label for="stok_barang" class="form-label">Stok Barang</label>
-                            <input type="number" class="form-control @error('stok_barang') is-invalid @enderror"
-                                id="stok_barang" name="stok_barang" min="1" max="10000" onblur="checkNumber(this, event)"
-                                onkeypress="return numberInput(event);" onkeyup="checkNumber(this, event)"
-                                value="{{ old('stok_barang') ?? (isset($barang) ? $barang->stok_barang : '') }}">
-                            @error('stok_barang')
+                            <label for="stok_produk" class="form-label">Stok Produk</label>
+                            <input type="number" class="form-control @error('stok_produk') is-invalid @enderror"
+                                id="stok_produk" name="stok_produk" min="1" max="1000000"
+                                onblur="checkNumber(this, event)" onkeypress="return numberInput(event);"
+                                onkeyup="checkNumber(this, event)"
+                                value="{{ old('stok_produk') ?? (isset($produk) ? $produk->stok_produk : '') }}">
+                            @error('stok_produk')
                                 <div class="invalid-feedback">
                                     {{ $message }}
                                 </div>
@@ -83,9 +84,10 @@
                         <div class="col-md-6">
                             <label for="stok_minimal" class="form-label">Stok Minimal</label>
                             <input type="number" class="form-control @error('stok_minimal') is-invalid @enderror"
-                                id="stok_minimal" name="stok_minimal" min="1" max="10000" onblur="checkNumber(this, event)"
-                                onkeypress="return numberInput(event);" onkeyup="checkNumber(this, event)"
-                                value="{{ old('stok_minimal') ?? (isset($barang) ? $barang->stok_minimal : '') }}">
+                                id="stok_minimal" name="stok_minimal" min="1" max="100000"
+                                onblur="checkNumber(this, event)" onkeypress="return numberInput(event);"
+                                onkeyup="checkNumber(this, event)"
+                                value="{{ old('stok_minimal') ?? (isset($produk) ? $produk->stok_minimal : '') }}">
                             @error('stok_minimal')
                                 <div class="invalid-feedback">
                                     {{ $message }}

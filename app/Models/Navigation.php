@@ -90,21 +90,21 @@ class Navigation
             ),
             array(
                 "role"      => ['kasir'],
-                "title"     => "Stok Barang",
+                "title"     => "Stok Produk",
                 "url"       => 'javascript:void(0)',
                 "index"     => 5,
                 "icon"      => "bx bx-box",
                 "child"     => [
                     array(
                         "title"     => "List Data",
-                        "url"       => route('barang.list'),
+                        "url"       => route('produk.list'),
                         "index"     => 5.1,
                         "icon"      => null,
                         "child"     => null,
                     ),
                     array(
                         "title"     => "Tambah Data",
-                        "url"       => route('barang.add'),
+                        "url"       => route('produk.add'),
                         "index"     => 5.2,
                         "icon"      => null,
                         "child"     => null,

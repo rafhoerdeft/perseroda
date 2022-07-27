@@ -154,7 +154,9 @@ function createDataTableServerSide(name_id = '', url = '', columns = [], info = 
                     "columns": col_print,
                     "format": {
                         body: function (data, row, column, node) {
-                          return data.toString().replaceAll('.', '');
+                            //   return column === 8 ? data.toString().replaceAll('.', '') : data;
+                            let dt = data.toString().replace(/<.*?>/ig, ""); // remove tag html
+                            return dt.toString().replaceAll('.', ''); // remove '.' in nominal
                         }
                     }
                 }
@@ -224,8 +226,8 @@ function createDataTableServerSide(name_id = '', url = '', columns = [], info = 
         }
     }).on('draw.dt', function() {
         checkChangePage();
-        activeIcheck();
-    });;
+        // activeIcheck();
+    });
 }
 
 function range(start, end) {

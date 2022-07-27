@@ -5,8 +5,9 @@
         <th>No</th>
         @if (in_array(session('log'), ['kasir', 'akuntansi']))
             <th>
-                <div class="skin skin-check">
-                    <input type="checkbox" name="select_row_all" id="check_all" value="0">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="select_row_all"
+                        id="check_all" value="0">
                 </div>
             </th>
             <th>Aksi</th>
@@ -138,7 +139,7 @@
                     <table class="table">
                         <thead class="text-center">
                             <th>No.</th>
-                            <th>Nama Barang</th>
+                            <th>Nama Produk</th>
                             <th>Satuan</th>
                             <th>Harga</th>
                             <th>Jml. Order</th>
@@ -164,21 +165,33 @@
 
 @push('css_plugin')
     <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
-    {{-- Icheck --}}
-    <link href="{{ asset_ext . 'icheck/css/icheck.css' }}" rel="stylesheet" />
-    <link href="{{ asset_ext . 'icheck/css/custom.css' }}" rel="stylesheet" />
+
     {{-- Sweet Alert --}}
     <link href="{{ asset_ext . 'sweetalert/css/sweetalert.css' }}" rel="stylesheet" />
+
     {{-- Select 2 --}}
     <link href="{{ asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/plugins/select2/css/select2-bootstrap4.css') }}" rel="stylesheet" />
+@endpush
+
+@push('css_style')
+    <style>
+        .form-check {
+            padding-left: 2rem;
+            margin: 0px;
+        }
+
+        .form-check-input {
+            width: 19px;
+            height: 19px;
+        }
+    </style>
 @endpush
 
 @push('js_plugin')
     <script src="{{ asset('assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
-    <script src="{{ asset_ext . 'icheck/js/icheck.min.js' }}"></script>
     <script src="{{ asset_ext . 'sweetalert/js/sweetalert.min.js' }}"></script>
     <script src="{{ asset_js . 'datatable_option.js' }}"></script>
     <script src="{{ asset_js . 'delete_data.js' }}"></script>
@@ -188,7 +201,7 @@
 @push('js_script')
     <script>
         function showDetail(data) {
-            var nama_barang = $(data).data('nama_barang').split(';');
+            var nama_produk = $(data).data('nama_produk').split(';');
             var satuan = $(data).data('satuan').split(';');
             var harga = $(data).data('harga').toString().split(';');
             var jml_order = $(data).data('jml_order').toString().split(';');
@@ -196,11 +209,11 @@
 
             var row = '';
             var tot_bayar = 0;
-            for (let i = 0; i < nama_barang.length; i++) {
+            for (let i = 0; i < nama_produk.length; i++) {
                 let tot = (parseInt(jml_order[i]) * parseInt(harga[i])) + parseInt(biaya_tambahan[i]);
                 row += '<tr>' +
                     '<td align="center">' + (i + 1) + '</td>' +
-                    '<td>' + nama_barang[i] + '</td>' +
+                    '<td>' + nama_produk[i] + '</td>' +
                     '<td align="center">' + satuan[i] + '</td>' +
                     '<td align="right">' + formatRupiah(harga[i]) + '</td>' +
                     '<td align="right">' + formatRupiah(jml_order[i]) + '</td>' +
@@ -284,98 +297,113 @@
         });
     </script>
 
-    {{-- Select ROW to Highlight use ICheck --}}
     <script>
-        function activeIcheck() {
-            $('.skin-check input').on('ifChecked ifUnchecked', function(event) {
-                selectRow(this, event.type);
-            }).iCheck({
-                checkboxClass: 'icheckbox_flat-green'
-            });
-        }
+        // Check or uncheck 
+        function onCheckChange(data) {
+            let check_id = $(data).val();
 
-        // Hightlight on select 
-        function selectRow(data, type) {
-            let id = $(data).val();
-            var tr = $(data).parent().parent().parent().parent();
-
-            if (id == 0) {
-                if (type == 'ifChecked') {
-                    $('.skin-check input:checkbox').iCheck('check');
+            if ($(data).is(':checked')) {
+                if (check_id == 0) { // Chek all checkbox
+                    $('.form-check-input').prop('checked', true);
+                    $('.form-check-input').each(function(i, data) {
+                        let ids = $(data).val();
+                        if (ids != 0) { // not input in data
+                            checkInput(data, true);
+                        }
+                    });
                 } else {
-                    $('.skin-check input:checkbox').iCheck('uncheck');
+                    checkInput(data, true);
                 }
             } else {
-                var select_id = $('#delete_all').val();
-                var value_id = '';
-
-                if (type == 'ifChecked') {
-                    tr.toggleClass('row_check');
-
-                    if (select_id == '') {
-                        value_id = id;
-                        $('#btn_delete').attr('disabled', false);
-                    } else {
-                        value_id += select_id + ';' + id;
-                    }
-                } else {
-                    tr.toggleClass();
-
-                    var arr = select_id.split(";");
-                    var result = arr.filter(function(val) {
-                        return val != id;
+                if (check_id == 0) {
+                    $('.form-check-input').prop('checked', false);
+                    $('.form-check-input').each(function(i, data) {
+                        let ids = $(data).val();
+                        if (ids != 0) { // not input in data
+                            checkInput(data, false);
+                        }
                     });
-                    value_id = result.join(';');
-
-                    if (result.length == 0) {
-                        $('#btn_delete').attr('disabled', true);
-                    }
-                }
-                $("input[name=delete_all]").val(value_id);
-
-                if (value_id != '' && value_id != null) {
-                    count_select = value_id.split(";").length;
                 } else {
-                    count_select = 0;
+                    checkInput(data, false);
                 }
-
-                $('.page-breadcrumb .badge').html(count_select);
             }
         }
 
-        // Select on ROW 
+        // Add value on input delete when checked 
+        function checkInput(data, checked) {
+            let id = $(data).val();
+            var tr = $(data).closest('tr');
+            var select_id = $('#delete_all').val();
+            var value_id = '';
+
+            if (checked) {
+                tr.addClass('row_check');
+                if (select_id == '') {
+                    value_id = id;
+                    $('#btn_delete').attr('disabled', false);
+                } else {
+                    var arr = select_id.split(";");
+                    if (jQuery.inArray(id, arr) !== -1) { // check ID if available in array
+                        value_id = select_id;
+                    } else {
+                        value_id += select_id + ';' + id;
+                    }
+                }
+            } else {
+                tr.removeClass('row_check');
+
+                var arr = select_id.split(";");
+                var result = arr.filter(function(val) {
+                    return val != id;
+                });
+                value_id = result.join(';');
+
+                if (result.length == 0) { // disabled button Delete All if nothing to check
+                    $('#btn_delete').attr('disabled', true);
+                }
+            }
+
+            $("input[name=delete_all]").val(value_id);
+
+            if (value_id != '' && value_id != null) {
+                var count_select = value_id.split(";").length;
+            } else {
+                var count_select = 0;
+            }
+
+            $('.page-breadcrumb .badge').html(count_select);
+        }
+
+        // Automatic find row checked when change page 
+        function checkChangePage() {
+            var select_id = $('#delete_all').val();
+            var arr = select_id.split(";");
+
+            arr.forEach(function(val, i) {
+                var checkbox = $('.form-check input:checkbox[value="' + val + '"]');
+                checkbox.prop('checked', true);
+                checkbox.closest('tr').addClass('row_check');
+            });
+        }
+
+        // Highlight ROW on click tr 
         $(document).ready(function() {
             $('.table').on('click', 'tbody tr', function(e) {
                 var td = $(this).children();
-                var cekbox = td.eq(1).find('input');
-                var checked = cekbox.parent().hasClass('checked');
-                if (checked) {
-                    if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' && e.target
-                        .tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
-                        cekbox.iCheck('uncheck');
-                    }
-                } else {
-                    var cek_disabled = cekbox.parent().hasClass('disabled');
-                    if (!cek_disabled) {
-                        if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target
-                            .tagName !== 'I') {
-                            cekbox.iCheck('check');
-                        }
+                var checkbox = td.eq(1).find('input');
+                var checked = checkbox.prop('checked');
+                if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' && e.target
+                    .tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
+                    if (checked) {
+                        checkbox.prop('checked', false);
+                        checkInput(checkbox, false);
+                    } else {
+                        checkbox.prop('checked', true);
+                        checkInput(checkbox, true);
                     }
                 }
             });
         });
-
-        // To highlight row checked when change page 
-        function checkChangePage() {
-            var select_id = $('#delete_all').val();
-            var arr = select_id.split(";");
-            arr.forEach(function(value, index) {
-                var cekbox = $('.skin-check input:checkbox[value="' + value + '"]');
-                cekbox.iCheck('check');
-                cekbox.parent().parent().parent().toggleClass('row_cek');
-            });
-        }
     </script>
 
     {{-- Delete All function --}}

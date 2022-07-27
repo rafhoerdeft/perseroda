@@ -18,9 +18,9 @@ class Tarif extends Model
         return $this->hasMany('App\Models\RincianOrder');
     }
 
-    public function barang()
+    public function produk()
     {
-        return $this->belongsTo('App\Models\Barang');
+        return $this->belongsTo('App\Models\Produk');
     }
 
     public function unit_usaha()

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\UserBaseController;
-use App\Models\Barang;
+use App\Models\Produk;
 use App\Models\NoOrder;
 use App\Models\Order;
 use App\Models\RincianOrder;
@@ -95,19 +95,16 @@ class Perdagangan extends UserBaseController
 
             if (in_array(session('log'), ['kasir', 'akuntansi'])) {
                 $data_tables->addColumn('check_all', function ($row) {
-                    $check = '<div class="skin skin-check">
-                                        <input type="checkbox" name="select_row[]" id="select_row_' . $row->id . '"
-                                            value="' . $row->id . '">
-                                    </div>';
+                    $check = '<div class="form-check"> <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="select_row[]" id="select_row_' . $row->id . '" value="' . $row->id . '"> </div>';
                     return $check;
                 });
 
                 $data_tables->addColumn('action', function ($row) {
                     $action_btn = '<button type="button" onclick="showDetail(this)" 
-                                        data-nama_barang="' . $row->rincian_order->implode('tarif.barang.nama_barang', ';') . '"
+                                        data-nama_produk="' . $row->rincian_order->implode('tarif.produk.nama_produk', ';') . '"
                                         data-jml_order="' . $row->rincian_order->implode('jml_order', ';') . '"
                                         data-harga="' . $row->rincian_order->implode('tarif.harga', ';') . '"
-                                        data-satuan="' . $row->rincian_order->implode('tarif.barang.satuan_barang', ';') . '"
+                                        data-satuan="' . $row->rincian_order->implode('tarif.produk.satuan_produk', ';') . '"
                                         data-biaya_tambahan="' . $row->rincian_order->implode('biaya_tambahan', ';') . '"
                                         class="btn btn-sm btn-primary" title="Rincian Order">
                                         <i class="lni lni-list me-0 font-sm"></i>
@@ -134,41 +131,32 @@ class Perdagangan extends UserBaseController
         }
     }
 
-    public function add()
-    {
-        $no_order = $this->nomorOrder()['no_order'];
-        $year = selected_year;
-
-        $breadcrumb = ['order/perdagangan' => 'Order Perdagangan', 'Form Order']; //url => title
-        $form_title = 'Input Order - ' . $no_order;
-        return view('pages/order/perdagangan/form', compact('breadcrumb', 'form_title', 'year'));
-    }
-
-    public function getBarang(Request $request)
+    public function getProduk(Request $request)
     {
         try {
             if ($request->id) {
-                $barang = Barang::with('tarif:id,harga,barang_id')->find($request->id);
-                if (!$barang) {
-                    throw new \Exception('Data barang tidak ditemukan.');
+                $produk = Produk::with('tarif:id,harga,produk_id')->find($request->id);
+                if (!$produk) {
+                    throw new \Exception('Data produk tidak ditemukan.');
                 }
-                $res = ['response' => true, 'result' => $barang];
+                $res = ['response' => true, 'result' => $produk];
             } else {
-                $limit = 10;
-                $barang = Barang::with('tarif:id,harga,barang_id')->select(['id', 'nama_barang', 'kode_barang'])->whereHas('tarif', function ($query) {
-                    $query->whereHas('unit_usaha', function ($query) {
-                        $query->where('nama_unit_usaha', 'perdagangan');
-                    });
-                })->where('stok_barang', '>', 0)->where(function ($query) use ($request) {
-                    $query->where('kode_barang', 'LIKE', '%' . $request->search . '%')
-                        ->orWhere('nama_barang', 'LIKE', '%' . $request->search . '%');
+                $limit = $request->limit ?? 10;
+                $produk = Produk::with('tarif:id,harga,produk_id')->select(['id', 'nama_produk', 'kode_produk', 'stok_produk'])->whereHas('tarif', function ($query) {
+                    $query->where('produk_id', '!=', null);
+                    // $query->whereHas('unit_usaha', function ($query) {
+                    //     $query->where('nama_unit_usaha', 'perdagangan');
+                    // });
+                })->where('stok_produk', '>', 0)->where(function ($query) use ($request) {
+                    $query->where('kode_produk', 'LIKE', '%' . $request->search . '%')
+                        ->orWhere('nama_produk', 'LIKE', '%' . $request->search . '%');
                 });
 
-                $count = $barang->count();
-                $result = $barang->offset((($request->page - 1) * $limit))->limit($limit)->get();
+                $count = $produk->count();
+                $result = $produk->offset((($request->page - 1) * $limit))->limit($limit)->get();
 
                 if (!$result) {
-                    throw new \Exception('Gagal mengambil data barang.');
+                    throw new \Exception('Gagal mengambil data produk.');
                 }
 
                 $res = [
@@ -184,12 +172,32 @@ class Perdagangan extends UserBaseController
         return json_encode($res);
     }
 
+    public function add()
+    {
+        $no_order = $this->nomorOrder()['no_order'];
+        $year = selected_year;
+
+        $breadcrumb = ['order/perdagangan' => 'Order Perdagangan', 'Form Order']; //url => title
+        $form_title = 'Input Order - ' . $no_order;
+        return view('pages/order/perdagangan/form', compact('breadcrumb', 'form_title', 'year'));
+    }
+
     public function edit($id = null)
     {
-        $barang = Order::with('tarif')->find(decode($id));
-        $breadcrumb = ['barang' => 'Stok Barang', 'Form Barang']; //url => title
-        $form_title = 'Edit Barang';
-        return view('pages/order/perdagangan/form', compact('breadcrumb', 'form_title', 'barang'));
+        $year = selected_year;
+        $order = Order::with('rincian_order')->find(decode($id));
+        $rincian_order = RincianOrder::with('tarif')->where('order_id', $order->id)->get();
+        $tot_order = $rincian_order->sum(function ($item) {
+            return $item->jml_order * $item->tarif->harga + $item->biaya_tambahan;
+        });
+        $rincian_data = [];
+        foreach ($rincian_order as $val) {
+            $rincian_data[$val->tarif_id] = $val->jml_order;
+        }
+        $no_order = $order->no_order;
+        $breadcrumb = ['order/perdagangan' => 'Order Perdagangan', 'Form Order']; //url => title
+        $form_title = 'Edit Order - ' . $no_order;
+        return view('pages/order/perdagangan/form', compact('breadcrumb', 'form_title', 'order', 'year', 'rincian_order', 'tot_order', 'rincian_data'));
     }
 
     public function save(Request $request)
@@ -199,7 +207,7 @@ class Perdagangan extends UserBaseController
             'nama_klien'  => 'string|nullable',
             'jenis_bayar'  => 'required|in:tunai,bank',
             'status_bayar'  => 'required|numeric|between:0,1',
-            'rincian_barang'  => 'required|string',
+            'rincian_produk'  => 'required|string',
             'total_bayar'  => 'required|integer',
             // 'harga'  => 'required|regex:/^[0-9\.,]+$/|not_in:0'
         ]);
@@ -240,15 +248,30 @@ class Perdagangan extends UserBaseController
                 RincianOrder::where('order_id', $order_id)->delete();
             }
 
-            $rincian_barang = json_decode($request->rincian_barang);
+            if ($request->rincian_produk_old) {
+                $rincian_produk_old = json_decode($request->rincian_produk_old);
+
+                foreach ($rincian_produk_old as $tarif_id => $jml) {
+                    Produk::whereHas('Tarif', function ($query) use ($tarif_id) {
+                        $query->where('id', $tarif_id);
+                    })->increment('stok_produk', $jml);
+                }
+            }
+
+            $rincian_produk = json_decode($request->rincian_produk);
 
             $data_rincian = [];
-            foreach ($rincian_barang as $tarif_id => $jml) {
+            foreach ($rincian_produk as $tarif_id => $jml) {
                 $data_rincian[] = [
                     'order_id'      => $order_id,
                     'tarif_id'      => $tarif_id,
                     'jml_order'     => $jml,
+                    'harga'         => Tarif::find($tarif_id)->harga,
                 ];
+
+                Produk::whereHas('Tarif', function ($query) use ($tarif_id) {
+                    $query->where('id', $tarif_id);
+                })->decrement('stok_produk', $jml);
             }
 
             RincianOrder::upsert($data_rincian, ['order_id', 'tarif_id'], ['jml_order']);

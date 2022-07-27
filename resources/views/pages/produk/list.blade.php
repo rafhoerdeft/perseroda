@@ -11,7 +11,7 @@
             </button>
         </div>
         <div class="col-md-6">
-            <a href="{{ route('barang.add') }}" class="btn btn-primary w-100">
+            <a href="{{ route('produk.add') }}" class="btn btn-primary w-100">
                 <i class="bx bx-list-plus"></i>Tambah Data
             </a>
         </div>
@@ -23,17 +23,18 @@
         <th>No</th>
         @if (in_array(session('log'), ['kasir', 'akuntansi']))
             <th>
-                <div class="skin skin-check">
-                    <input type="checkbox" name="plh_brg_all" id="check_all" value="0">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="plh_brg_all"
+                        id="check_all" value="0">
                 </div>
             </th>
             <th>Aksi</th>
         @endif
-        <th>Kode Barang</th>
-        <th>Nama Barang</th>
+        <th>Kode Produk</th>
+        <th>Nama Produk</th>
         <th>Satuan</th>
         <th>Harga</th>
-        <th>Stok Barang</th>
+        <th>Stok Produk</th>
         <th>Stok Minimal</th>
     </tr>
 @endsection
@@ -59,7 +60,7 @@
                             </button>
                         </div>
                         <div class="col-sm-6">
-                            <a href="{{ route('barang.add') }}" class="btn btn-primary w-100">
+                            <a href="{{ route('produk.add') }}" class="btn btn-primary w-100">
                                 <i class="bx bx-list-plus"></i>Tambah Data
                             </a>
                         </div>
@@ -77,33 +78,35 @@
                         @php
                             $no = 1;
                         @endphp
-                        @foreach ($list_barang as $row)
+                        @foreach ($list_produk as $row)
                             <tr>
                                 <td align="center">{{ $no++ }}</td>
                                 @if (in_array(session('log'), ['kasir', 'akuntansi']))
                                     <td>
-                                        <div class="skin skin-check">
-                                            <input type="checkbox" name="plh_brg[]" id="plh_brg_{{ $row->id }}"
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)"
+                                                name="plh_brg[]" id="plh_brg_{{ $row->id }}"
                                                 value="{{ $row->id }}">
                                         </div>
                                     </td>
                                     <td>
-                                        <a href="{{ route('barang.edit', ['id' => encode($row->id)]) }}"
+                                        <a href="{{ route('produk.edit', ['id' => encode($row->id)]) }}"
                                             class="btn btn-info btn-sm" title="Update Data">
                                             <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
                                         </a>
                                         <button type="button" onclick="deleteData(this)" data-id="{{ encode($row->id) }}"
-                                            data-link="{{ url('barang/delete') }}" class="btn btn-sm btn-danger"
+                                            data-link="{{ url('produk/delete') }}" class="btn btn-sm btn-danger"
                                             title="Hapus Data">
                                             <i class="lni lni-trash me-0 font-sm"></i>
                                         </button>
                                     </td>
                                 @endif
-                                <td align="center">{{ $row->kode_barang }}</td>
-                                <td>{{ $row->nama_barang }}</td>
-                                <td align="center">{{ $row->satuan_barang }}</td>
-                                <td align="right">{{ isset($row->tarif->harga) ? nominal($row->tarif->harga) : '' }}</td>
-                                <td align="right">{{ $row->stok_barang }}</td>
+                                <td align="center">{{ $row->kode_produk }}</td>
+                                <td>{{ $row->nama_produk }}</td>
+                                <td align="center">{{ $row->satuan_produk }}</td>
+                                <td align="right">{{ isset($row->tarif->harga) ? nominal($row->tarif->harga) : '' }}
+                                </td>
+                                <td align="right">{{ $row->stok_produk }}</td>
                                 <td align="right">{{ $row->stok_minimal }}</td>
                             </tr>
                         @endforeach
@@ -119,17 +122,28 @@
 
 @push('css_plugin')
     <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
-    {{-- Icheck --}}
-    <link href="{{ asset_ext . 'icheck/css/icheck.css' }}" rel="stylesheet" />
-    <link href="{{ asset_ext . 'icheck/css/custom.css' }}" rel="stylesheet" />
+
     {{-- Sweet Alert --}}
     <link href="{{ asset_ext . 'sweetalert/css/sweetalert.css' }}" rel="stylesheet" />
+@endpush
+
+@push('css_style')
+    <style>
+        .form-check {
+            padding-left: 2rem;
+            margin: 0px;
+        }
+
+        .form-check-input {
+            width: 19px;
+            height: 19px;
+        }
+    </style>
 @endpush
 
 @push('js_plugin')
     <script src="{{ asset('assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
-    <script src="{{ asset_ext . 'icheck/js/icheck.min.js' }}"></script>
     <script src="{{ asset_ext . 'sweetalert/js/sweetalert.min.js' }}"></script>
     <script src="{{ asset_js . 'datatable_option.js' }}"></script>
     <script src="{{ asset_js . 'delete_data.js' }}"></script>
@@ -138,84 +152,116 @@
 @push('js_script')
     <script>
         var tgl_awal = "{{ date('d-m-Y') }}";
-        var info = "Daftar Stok Barang";
+        var info = "Daftar Stok Produk";
         var msg = "Tanggal " + tgl_awal;
 
         createDataTableExport('list_data', info, msg, 9);
+
+        // $('#list_data').on('draw.dt', function() {
+        //     cekChangePage();
+        // });
     </script>
 
     <script>
-        var iCek = $('.skin-check input').on('ifChecked ifUnchecked', function(event) {
-            selectRow(this, event.type);
-        }).iCheck({
-            checkboxClass: 'icheckbox_flat-green'
-        });
+        // $('.form-check-input').on('change', function() {
+        function onCheckChange(data) {
+            let check_id = $(data).val();
 
-        function selectRow(data, type) {
-            let id = $(data).val();
-            var tr = $(data).parent().parent().parent().parent();
-
-            if (id == 0) {
-                if (type == 'ifChecked') {
-                    $('.skin-check input:checkbox').iCheck('check');
+            if ($(data).is(':checked')) {
+                if (check_id == 0) { // Chek all checkbox
+                    $('.form-check-input').prop('checked', true);
+                    $('.form-check-input').each(function(i, data) {
+                        let ids = $(data).val();
+                        if (ids != 0) { // not input in data
+                            checkInput(data, true);
+                        }
+                    });
                 } else {
-                    $('.skin-check input:checkbox').iCheck('uncheck');
+                    checkInput(data, true);
                 }
             } else {
-                var select_id = $('#delete_all').val();
-                var value_id = '';
+                if (check_id == 0) {
+                    $('.form-check-input').prop('checked', false);
+                    $('.form-check-input').each(function(i, data) {
+                        let ids = $(data).val();
+                        if (ids != 0) { // not input in data
+                            checkInput(data, false);
+                        }
+                    });
+                } else {
+                    checkInput(data, false);
+                }
+            }
+        }
+        // });
 
-                if (type == 'ifChecked') {
-                    tr.toggleClass('row_check');
+        function checkInput(data, checked) {
+            let id = $(data).val();
+            var tr = $(data).closest('tr');
+            var select_id = $('#delete_all').val();
+            var value_id = '';
 
-                    if (select_id == '') {
-                        value_id = id;
-                        $('#btn_delete').attr('disabled', false);
+            if (checked) {
+                tr.addClass('row_check');
+                if (select_id == '') {
+                    value_id = id;
+                    $('#btn_delete').attr('disabled', false);
+                } else {
+                    var arr = select_id.split(";");
+                    if (jQuery.inArray(id, arr) !== -1) { // check ID if available in array
+                        value_id = select_id;
                     } else {
                         value_id += select_id + ';' + id;
                     }
-                } else {
-                    tr.toggleClass();
-
-                    var arr = select_id.split(";");
-                    var result = arr.filter(function(val) {
-                        return val != id;
-                    });
-                    value_id = result.join(';');
-
-                    if (result.length == 0) {
-                        $('#btn_delete').attr('disabled', true);
-                    }
                 }
-                $("input[name=delete_all]").val(value_id);
+            } else {
+                tr.removeClass('row_check');
 
-                if (value_id != '' && value_id != null) {
-                    count_select = value_id.split(";").length;
-                } else {
-                    count_select = 0;
+                var arr = select_id.split(";");
+                var result = arr.filter(function(val) {
+                    return val != id;
+                });
+                value_id = result.join(';');
+
+                if (result.length == 0) { // disabled button Delete All if nothing to check
+                    $('#btn_delete').attr('disabled', true);
                 }
-
-                $('.page-breadcrumb .badge').html(count_select);
             }
+
+            $("input[name=delete_all]").val(value_id);
+
+            if (value_id != '' && value_id != null) {
+                var count_select = value_id.split(";").length;
+            } else {
+                var count_select = 0;
+            }
+
+            $('.page-breadcrumb .badge').html(count_select);
+        }
+
+        function cekChangePage() {
+            $('.form-check-input').each(function(i, data) {
+                let tr = $(this).closest('tr');
+                let ids = $(data).val();
+                if (ids != 0) { // not input in data
+                    // console.log(tr);
+                }
+            });
         }
 
         $(document).ready(function() {
             $('.table').on('click', 'tbody tr', function(e) {
                 var td = $(this).children();
-                var cekbox = td.eq(1).find('input');
-                var checked = cekbox.parent().hasClass('checked');
-                if (checked) {
-                    if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' && e.target
-                        .tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
-                        cekbox.iCheck('uncheck');
-                    }
-                } else {
-                    var cek_disabled = cekbox.parent().hasClass('disabled');
-                    if (!cek_disabled) {
-                        if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target
-                            .tagName !== 'I') {
-                            cekbox.iCheck('check');
-                        }
+                var checkbox = td.eq(1).find('input');
+                var checked = checkbox.prop('checked');
+                if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' && e.target
+                    .tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
+                    if (checked) {
+                        checkbox.prop('checked', false);
+                        checkInput(checkbox, false);
+                    } else {
+                        checkbox.prop('checked', true);
+                        checkInput(checkbox, true);
                     }
                 }
             });
@@ -226,7 +272,7 @@
         function deleteAll() {
             var dataid = $('#delete_all').val();
             var link = "{{ url('all/delete') }}";
-            var table = "barang";
+            var table = "produk";
             var data = {
                 dataid: dataid,
                 link: link,

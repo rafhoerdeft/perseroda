@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Barang extends Model
+class Produk extends Model
 {
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'barang';
+    protected $table = 'produk';
 
     protected $guarded = []; // can insert all column
     protected $dates = ['deleted_at'];
