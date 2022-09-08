@@ -21,6 +21,11 @@ class Order extends Model
         return $this->hasMany('App\Models\RincianOrder');
     }
 
+    public function rincian_cetakan()
+    {
+        return $this->hasOne('App\Models\RincianCetakan');
+    }
+
     public function user()
     {
         return $this->belongsTo('App\Models\User');

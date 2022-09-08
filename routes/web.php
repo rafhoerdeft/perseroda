@@ -40,13 +40,23 @@ Route::middleware('preventBackHistory')->prefix('order')->name('order.')->namesp
         Route::get('edit/{id?}', 'Perdagangan@edit')->name('edit')->middleware('auth.user:akuntansi;bendahara;kasir');
         Route::post('delete', 'Perdagangan@delete')->name('delete')->middleware('auth.user:akuntansi;bendahara;kasir');
         Route::post('save', 'Perdagangan@save')->name('save')->middleware('auth.user:akuntansi;bendahara;kasir');
+        Route::middleware('preventBackHistory')->prefix('change')->name('change.')->group(function () {
+            Route::post('statusbayar', 'Perdagangan@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
+            Route::post('jenisbayar', 'Perdagangan@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
+        });
     });
     Route::middleware('preventBackHistory')->prefix('percetakan')->name('percetakan.')->group(function () {
         Route::get('', 'Percetakan@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');
+        Route::get('data/{status?}/{jenis?}', 'Percetakan@getData')->name('data')->middleware('auth.user:akuntansi;bendahara;kasir');
         Route::get('add', 'Percetakan@add')->name('add')->middleware('auth.user:akuntansi;bendahara;kasir');
+        Route::get('produk', 'Percetakan@getProduk')->name('produk')->middleware('auth.user:akuntansi;bendahara;kasir');
         Route::get('edit/{id?}', 'Percetakan@edit')->name('edit')->middleware('auth.user:akuntansi;bendahara;kasir');
         Route::post('delete', 'Percetakan@delete')->name('delete')->middleware('auth.user:akuntansi;bendahara;kasir');
         Route::post('save', 'Percetakan@save')->name('save')->middleware('auth.user:akuntansi;bendahara;kasir');
+        Route::middleware('preventBackHistory')->prefix('change')->name('change.')->group(function () {
+            Route::post('statusbayar', 'Percetakan@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
+            Route::post('jenisbayar', 'Percetakan@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
+        });
     });
     Route::middleware('preventBackHistory')->prefix('jasa')->name('jasa.')->group(function () {
         Route::get('', 'Jasa@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');

@@ -19,7 +19,8 @@
                     <div class="page-breadcrumb d-sm-flex align-items-center">
                         <div class="card-title d-flex align-items-center">
                             <i class="bx bx-box me-1 font-22 text-primary"></i>
-                            <h5 class="mb-0 text-primary">{{ $form_title }}</h5>
+                            <h5 class="mb-0 text-primary">{{ $form_title }}
+                                {{ isset($produk) ? ' - ' . $produk->kode_produk : '' }}</h5>
                         </div>
                         <div class="ms-auto">
                             <a href="{{ route('produk.list') }}" class="btn btn-primary w-100">

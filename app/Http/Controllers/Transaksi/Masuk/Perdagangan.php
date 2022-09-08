@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Order;
+namespace App\Http\Controllers\Transaksi\Masuk;
 
 use App\Http\Controllers\UserBaseController;
 use App\Models\Produk;
@@ -16,46 +16,25 @@ use Yajra\DataTables\DataTables;
 
 class Perdagangan extends UserBaseController
 {
-    protected $is_role;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->middleware(function ($request, $next) {
-            $this->is_role = false;
-            $role = ['kasir'];
-            if (in_array(session('log'), $role)) {
-                $this->is_role = true;
-            }
-            return $next($request);
-        });
-    }
-
     public function index(Request $request)
     {
-        $breadcrumb = ['Order Perdagangan'];
-        $form_title = 'Input Order';
+        $breadcrumb = ['Transaksi Perdagangan'];
 
         $status_bayar_select = $request->status_bayar;
         $jenis_bayar_select = $request->jenis_bayar;
 
-        $is_role = $this->is_role;
-
-        $main_route = 'order.perdagangan.';
-        $link_datatable = url('order/perdagangan/data/' . $status_bayar_select . '/' . $jenis_bayar_select);
+        $main_route = 'transaksi.masuk.perdagangan.';
+        $link_datatable = url('transaksi/masuk/perdagangan/data/' . $status_bayar_select . '/' . $jenis_bayar_select);
 
         $data = compact(
             'breadcrumb',
-            'form_title',
-            'is_role',
             'status_bayar_select',
             'jenis_bayar_select',
             'main_route',
             'link_datatable',
         );
 
-        return view('pages/order/perdagangan/list', $data);
+        return view('pages/transaksi/masuk/perdagangan/list', $data);
     }
 
     public function getData($status = '', $jenis = '', Request $request)
@@ -78,16 +57,14 @@ class Perdagangan extends UserBaseController
 
             $list_order = Order::whereHas('unit_usaha', function ($query) {
                 $query->where('nama_unit_usaha', '=', 'perdagangan');
-            });
-            $list_order->with('rincian_order');
-            if ($this->is_role) {
-                $list_order->where('user_id', session('log_user_id'));
-            }
-            $list_order->whereYear('tgl_order', '=', $year);
-            $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
-            $list_order->orderByDesc('id')->get();
+            })
+                ->with('rincian_order')
+                // ->where('user_id', session('log_user_id'))
+                ->whereYear('tgl_order', '=', $year)
+                ->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']])
+                ->orderByDesc('id')->get();
 
-            $data_tables = DataTables::of($list_order);
+            $data_tables =  DataTables::of($list_order);
             $raw_columns = [];
 
             $data_tables->addIndexColumn();
@@ -102,25 +79,11 @@ class Perdagangan extends UserBaseController
                 );
             });
             $data_tables->editColumn('status_bayar', function ($row) use ($status_bayar) {
+                $bg = 'success';
                 if ($row->status_bayar == 0) {
                     $bg = 'danger';
-                    $col_sts_byr =  '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_bayar[$row->status_bayar] . '</span>';
-                    if ($this->is_role) {
-                        $col_sts_byr .= "<div class='mt-1'>
-                                            <button type='button' class='btn btn-sm btn-warning text-sm-b p-1 w-75' 
-                                            data-post='" . json_encode(['id' => encode($row->id)]) . "'
-                                            data-link='" . url('order/perdagangan/change/statusbayar') . "'
-                                            data-table='list_data' 
-                                            data-title='Ubah status bayar (" . $row->no_order . ")'
-                                            data-text='Status bayar akan diubah menjadi LUNAS?'
-                                            onclick='confirmDialog(this, false)' title='Ubah Status Bayar'>Ubah Status</button>
-                                        </div>";
-                    }
-                    return $col_sts_byr;
-                } else {
-                    $bg = 'success';
-                    return '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_bayar[$row->status_bayar] . '</span>';
                 }
+                return '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_bayar[$row->status_bayar] . '</span>';;
             });
             $raw_columns[] = 'status_bayar';
 
@@ -129,74 +92,42 @@ class Perdagangan extends UserBaseController
                 if ($row->jenis_bayar == 'bank') {
                     $bg = 'info';
                 }
-                if ($this->is_role) {
-                    return "<div class='btn-group w-75'>
-                                <button type='button' class='btn btn-sm btn-" . $bg . " text-white text-sm-b p-0' title='" . text_uc($row->jenis_bayar) . "'>" . text_uc($row->jenis_bayar) . "</button>
-                                <button type='button' class='btn btn-sm btn-" . $bg . " text-white p-0 split-bg-" . $bg . " dropdown-toggle dropdown-toggle-split' data-bs-toggle='dropdown' aria-expanded='false' title='Ubah Jenis Bayar'>
-                                </button>
-                                <div class='dropdown-menu dropdown-menu-right dropdown-menu-lg-end' style='margin: 0px;'>	
-                                    <a class='dropdown-item " . ($row->jenis_bayar == 'bank' ? 'active bg-info' : '') . "' href='javascript:void(0);' data-post='" . json_encode(['id' => encode($row->id), 'jenis' => 'bank']) . "' 
-                                    data-link='" . url('order/perdagangan/change/jenisbayar') . "'
-                                    data-table='list_data' 
-                                    data-title='Ubah jenis bayar (" . $row->no_order . ")'
-                                    data-text='Jenis bayar akan diubah menjadi Bank?'
-                                    onclick='" . ($row->jenis_bayar == 'bank' ? '' : 'confirmDialog(this, false)') . "'>Bank</a>
-
-                                    <a class='dropdown-item " . ($row->jenis_bayar == 'tunai' ? 'active' : '') . "' href='javascript:void(0);' data-post='" . json_encode(['id' => encode($row->id), 'jenis' => 'tunai']) . "' 
-                                    data-link='" . url('order/perdagangan/change/jenisbayar') . "'
-                                    data-table='list_data' 
-                                    data-title='Ubah jenis bayar (" . $row->no_order . ")'
-                                    data-text='Jenis bayar akan diubah menjadi Tunai?' 
-                                    onclick='" . ($row->jenis_bayar == 'tunai' ? '' : 'confirmDialog(this, false)') . "'>Tunai</a>
-                                </div>
-                            </div>";
-                } else {
-                    return '<span class="badge bg-' . $bg . ' w-75">' . text_uc($row->jenis_bayar) . '</span>';
-                }
+                return '<span class="badge bg-' . $bg . ' w-75">' . text_uc($row->jenis_bayar) . '</span>';;
             });
             $raw_columns[] = 'jenis_bayar';
 
-            if ($this->is_role) {
+            if (in_array(session('log'), ['kasir', 'akuntansi'])) {
                 $data_tables->addColumn('check_all', function ($row) {
                     $check = '<div class="form-check"> <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="select_row[]" id="select_row_' . $row->id . '" value="' . $row->id . '"> </div>';
                     return $check;
                 });
 
-
+                $data_tables->addColumn('action', function ($row) {
+                    $action_btn = '<button type="button" onclick="showDetail(this)" 
+                                        data-nama_produk="' . $row->rincian_order->implode('tarif.produk.nama_produk', ';') . '"
+                                        data-jml_order="' . $row->rincian_order->implode('jml_order', ';') . '"
+                                        data-harga="' . $row->rincian_order->implode('harga', ';') . '"
+                                        data-satuan="' . $row->rincian_order->implode('tarif.produk.satuan_produk', ';') . '"
+                                        data-biaya_tambahan="' . $row->rincian_order->implode('biaya_tambahan', ';') . '"
+                                        class="btn btn-sm btn-primary" title="Rincian Order">
+                                        <i class="lni lni-list me-0 font-sm"></i>
+                                    </button>
+                                    <a href="' . route('transaksi.masuk.perdagangan.edit', ['id' => encode($row->id)]) . '"
+                                        class="btn btn-info btn-sm" title="Update Data">
+                                        <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
+                                    </a>
+                                    <button type="button" onclick="deleteData(this, false)" 
+                                        data-id="' . encode($row->id) . '"
+                                        data-link="' . url('transaksi/masuk/perdagangan/delete') . '"
+                                        data-table="list_data"
+                                        class="btn btn-sm btn-danger" title="Hapus Data">
+                                        <i class="lni lni-trash me-0 font-sm"></i>
+                                    </button>';
+                    return $action_btn;
+                });
                 $raw_columns[] = 'check_all';
+                $raw_columns[] = 'action';
             }
-
-            $data_tables->addColumn('action', function ($row) {
-                $btn_detail = '<button type="button" onclick="showDetail(this)" 
-                                    data-no_order="' . $row->no_order . '"
-                                    data-nama_produk="' . $row->rincian_order->implode('tarif.produk.nama_produk', ';') . '"
-                                    data-jml_order="' . $row->rincian_order->implode('jml_order', ';') . '"
-                                    data-harga="' . $row->rincian_order->implode('harga', ';') . '"
-                                    data-satuan="' . $row->rincian_order->implode('tarif.produk.satuan_produk', ';') . '"
-                                    data-biaya_tambahan="' . $row->rincian_order->implode('biaya_tambahan', ';') . '"
-                                    class="btn btn-sm btn-primary" title="Rincian Order">
-                                    <i class="lni lni-list me-0 font-sm"></i>
-                                </button> ';
-                $btn_update = '<a href="' . route('order.perdagangan.edit', ['id' => encode($row->id)]) . '"
-                                    class="btn btn-info btn-sm" title="Update Data">
-                                    <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
-                                </a> ';
-                $btn_delete = '<button type="button" onclick="deleteData(this, false)" 
-                                    data-id="' . encode($row->id) . '"
-                                    data-link="' . url('order/perdagangan/delete') . '"
-                                    data-table="list_data"
-                                    class="btn btn-sm btn-danger" title="Hapus Data">
-                                    <i class="lni lni-trash me-0 font-sm"></i>
-                                </button> ';
-                $action_btn = $btn_detail;
-                if ($this->is_role) {
-                    $action_btn .= $btn_update;
-                    $action_btn .= $btn_delete;
-                }
-                return $action_btn;
-            });
-            $raw_columns[] = 'action';
-
             $data_tables->rawColumns($raw_columns);
 
             return $data_tables->make(true);
@@ -251,7 +182,7 @@ class Perdagangan extends UserBaseController
 
         $breadcrumb = ['order/perdagangan' => 'Order Perdagangan', 'Form Order']; //url => title
         $form_title = 'Input Order - ' . $no_order;
-        return view('pages/order/perdagangan/form', compact('breadcrumb', 'form_title', 'year'));
+        return view('pages/transaksi/masuk/perdagangan/form', compact('breadcrumb', 'form_title', 'year'));
     }
 
     public function edit($id = null)
@@ -269,7 +200,7 @@ class Perdagangan extends UserBaseController
         $no_order = $order->no_order;
         $breadcrumb = ['order/perdagangan' => 'Order Perdagangan', 'Form Order']; //url => title
         $form_title = 'Edit Order - ' . $no_order;
-        return view('pages/order/perdagangan/form', compact('breadcrumb', 'form_title', 'order', 'year', 'rincian_order', 'tot_order', 'rincian_data'));
+        return view('pages/transaksi/masuk/perdagangan/form', compact('breadcrumb', 'form_title', 'order', 'year', 'rincian_order', 'tot_order', 'rincian_data'));
     }
 
     public function save(Request $request)
@@ -430,57 +361,5 @@ class Perdagangan extends UserBaseController
         }
 
         return ['no_order' => $nomor_order, 'unit_usaha_id' => $unit_usaha->id];
-    }
-
-    public function changeStatusBayar(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-            $data_order = [
-                'status_bayar' => 1,
-            ];
-
-            $order_id = decode($request->id);
-
-            $order = Order::find($order_id)->update($data_order);
-
-            if (!$order) {
-                throw new \Exception("Gagal ubah status bayar");
-            }
-
-            DB::commit();
-            $res = ['response' => true, 'text' => 'Berhasil ubah status bayar'];
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $res = ['response' => false, 'text' => $e->getMessage()];
-        }
-
-        return json_encode($res);
-    }
-
-    public function changeJenisBayar(Request $request)
-    {
-        DB::beginTransaction();
-        try {
-            $data_order = [
-                'jenis_bayar' => $request->jenis,
-            ];
-
-            $order_id = decode($request->id);
-
-            $order = Order::find($order_id)->update($data_order);
-
-            if (!$order) {
-                throw new \Exception("Gagal ubah jenis bayar");
-            }
-
-            DB::commit();
-            $res = ['response' => true, 'text' => 'Berhasil ubah jenis bayar'];
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $res = ['response' => false, 'text' => $e->getMessage()];
-        }
-
-        return json_encode($res);
     }
 }

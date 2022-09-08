@@ -30,9 +30,9 @@ function createDataTable(name_id, column_no_order = [], search = true) {
     });
 }
 
-function createDataTableExport(name_id, info, msg, num_cols = 1, column_no_order = [0,1,2], orientation = 'portrait') {
+function createDataTableExport(name_id, info, msg, num_cols = 1, column_no_order = [0,1,2], remove_cols = 2, orientation = 'portrait') {
     var col_print = range(0, (num_cols-1));
-    col_print.splice(1, 2); //At position 1, remove 2 value
+    col_print.splice(1, remove_cols); //At position 1, remove 2 value
 
     $('#' + name_id).dataTable({
         "dom": '<"row"<"col-md-6"<"row"<"col-md-4 mb-2"l><"col-md-8 mb-2"B>>><"col-md-6"f>><"table-responsive"t><"row"<"col-md-6"i><"col-md-6"p>>',
@@ -129,19 +129,13 @@ function createDataTableExport(name_id, info, msg, num_cols = 1, column_no_order
     });
 }
 
-function createDataTableServerSide(name_id = '', url = '', columns = [], info = '', msg = '', num_cols = 1, orientation = 'portrait') {
+function createDataTableServerSide(name_id = '', url = '', columns = [], info = '', msg = '', btn_print = false, num_cols = 1, remove_cols = 2, orientation = 'portrait') {
     var col_print = range(0, (num_cols-1));
-    col_print.splice(1, 2); //At position 1, remove 2 value
+    col_print.splice(1, remove_cols); //At position 1, remove 2 value
 
-    $('#' + name_id).DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: url,
-        dom: '<"row"<"col-md-6"<"row"<"col-md-4 mb-2"l><"col-md-8 mb-2"B>>><"col-md-6"f>><"table-responsive"t><"row"<"col-md-6"i><"col-md-6"p>>Tr',
-        // "searching": true,
-        order: [],
-        columns: columns,
-        buttons: [
+    var buttons = [];
+    if (btn_print) {
+        buttons = [
             // 'copy', 
             // 'csv', 
             {
@@ -205,7 +199,19 @@ function createDataTableServerSide(name_id = '', url = '', columns = [], info = 
             //         head.appendChild(style);
             //     }
             // }
-        ],
+        ];
+    }
+
+    $('#' + name_id).DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: url,
+        dom: '<"row"<"col-md-6"<"row"<"col-md-4 mb-2"l><"col-md-8 mb-2"B>>><"col-md-6"f>><"table-responsive"t><"row"<"col-md-6"i><"col-md-6"p>>Tr',
+        // "searching": true,
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
+        order: [],
+        columns: columns,
+        buttons: buttons,
         language: {
             "emptyTable": "Tidak ada data yang tersedia",
             "lengthMenu": "Tampilkan _MENU_",

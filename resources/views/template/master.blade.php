@@ -48,6 +48,10 @@
             background-color: #ffabab !important;
         }
 
+        .text-sm-b {
+            font-size: 0.75em;
+            font-weight: 700;
+        }
     </style>
 </head>
 

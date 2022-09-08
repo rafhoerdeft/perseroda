@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Order;
 
 use App\Http\Controllers\UserBaseController;
-use App\Models\Barang as BarangModel;
+use App\Models\Produk as ProdukModel;
 use App\Models\Tarif;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,80 +13,80 @@ class Jasa extends UserBaseController
 {
     public function index()
     {
-        $breadcrumb = ['Stok Barang'];
-        $list_barang = BarangModel::with('tarif')->orderByDesc('id')->get();
-        return view('pages/barang/list', compact('breadcrumb', 'list_barang'));
+        $breadcrumb = ['Stok Produk'];
+        $list_produk = ProdukModel::with('tarif')->orderByDesc('id')->get();
+        return view('pages/produk/list', compact('breadcrumb', 'list_produk'));
     }
 
     public function add()
     {
-        $breadcrumb = ['barang' => 'Stok Barang', 'Form Barang']; //url => title
-        $form_title = 'Input Barang';
-        return view('pages/barang/form', compact('breadcrumb', 'form_title'));
+        $breadcrumb = ['produk' => 'Stok Produk', 'Form Produk']; //url => title
+        $form_title = 'Input Produk';
+        return view('pages/produk/form', compact('breadcrumb', 'form_title'));
     }
 
     public function edit($id = null)
     {
-        $barang = BarangModel::with('tarif')->find(decode($id));
-        $breadcrumb = ['barang' => 'Stok Barang', 'Form Barang']; //url => title
-        $form_title = 'Edit Barang';
-        return view('pages/barang/form', compact('breadcrumb', 'form_title', 'barang'));
+        $produk = ProdukModel::with('tarif')->find(decode($id));
+        $breadcrumb = ['produk' => 'Stok Produk', 'Form Produk']; //url => title
+        $form_title = 'Edit Produk';
+        return view('pages/produk/form', compact('breadcrumb', 'form_title', 'produk'));
     }
 
     public function save(Request $request)
     {
         $this->validate($request, [
-            'nama_barang'  => 'required|string',
-            'stok_barang'  => 'required|integer',
+            'nama_produk'  => 'required|string',
+            'stok_produk'  => 'required|integer',
             'stok_minimal'  => 'required|integer',
-            'satuan_barang'  => 'nullable',
+            'satuan_produk'  => 'nullable',
             'harga'  => 'required|regex:/^[0-9\.,]+$/|not_in:0'
         ]);
 
         DB::beginTransaction();
         try {
 
-            $data_barang = [
-                'nama_barang'   => $request->nama_barang,
-                'stok_barang'   => $request->stok_barang,
+            $data_produk = [
+                'nama_produk'   => $request->nama_produk,
+                'stok_produk'   => $request->stok_produk,
                 'stok_minimal'  => $request->stok_minimal,
-                'satuan_barang' => $request->satuan_barang,
+                'satuan_produk' => $request->satuan_produk,
             ];
 
-            if ($request->barang_id) {
-                $barang_id = decode($request->barang_id);
+            if ($request->produk_id) {
+                $produk_id = decode($request->produk_id);
             } else {
-                $barang_id = null;
-                $data_barang['kode_barang'] = auto_code('kode_barang', 'barang', 'BR', 4);
+                $produk_id = null;
+                $data_produk['kode_produk'] = auto_code('kode_produk', 'produk', 'BR', 4);
             }
 
-            $exist_id = ['id' => $barang_id];
+            $exist_id = ['id' => $produk_id];
 
-            $barang = BarangModel::updateOrCreate($exist_id, $data_barang);
+            $produk = ProdukModel::updateOrCreate($exist_id, $data_produk);
 
-            if ($barang_id == null) {
-                $barang_id = $barang->id;
+            if ($produk_id == null) {
+                $produk_id = $produk->id;
             }
 
             $data_tarif = [
                 'unit_usaha_id' => 1,
-                'nama_tarif'    => $request->nama_barang,
+                'nama_tarif'    => $request->nama_produk,
                 'harga'         => rm_nominal($request->harga),
-                'satuan_tarif'  => $request->satuan_barang,
+                'satuan_tarif'  => $request->satuan_produk,
             ];
-            // $find_barang = BarangModel::find($barang->id);
-            // $find_barang->tarif()->create($data_tarif);
+            // $find_produk = ProdukModel::find($produk->id);
+            // $find_produk->tarif()->create($data_tarif);
 
-            $exist_id = ['barang_id' => $barang_id];
+            $exist_id = ['produk_id' => $produk_id];
             Tarif::updateOrCreate($exist_id, $data_tarif);
 
             DB::commit();
-            alert_success('Data barang berhasil disimpan.');
+            alert_success('Data produk berhasil disimpan.');
         } catch (\Exception $e) {
             DB::rollBack();
-            alert_failed('Data barang gagal disimpan.' . $e->getMessage());
+            alert_failed('Data produk gagal disimpan.' . $e->getMessage());
         }
-        return redirect('barang');
+        return redirect('produk');
     }
 
     public function delete(Request $request)
@@ -99,7 +99,7 @@ class Jasa extends UserBaseController
             }
 
             $id = $request->id;
-            $deleted = BarangModel::find(decode($id))->delete();
+            $deleted = ProdukModel::find(decode($id))->delete();
             if (!$deleted) {
                 throw new \Exception('Gagal hapus data!');
             }
