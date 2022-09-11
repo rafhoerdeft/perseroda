@@ -19,6 +19,7 @@ class UserBaseController extends BaseController
             session()->put('nav', Navigation::getMenu());
         }
 
+        define('storage', url('storage') . '/');
         define('asset_js', url('assets/js') . '/');
         define('asset_css', url('assets/css') . '/');
         define('asset_ext', url('assets/external') . '/');

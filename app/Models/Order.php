@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+// use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Order extends Model
+class Order extends Base
 {
     use HasFactory;
     use SoftDeletes;
@@ -15,6 +15,8 @@ class Order extends Model
 
     protected $guarded = []; // can insert all column
     protected $dates = ['deleted_at'];
+
+    protected $log = true;
 
     public function rincian_order()
     {
