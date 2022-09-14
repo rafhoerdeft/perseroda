@@ -81,7 +81,7 @@ class Perdagangan extends UserBaseController
             });
             $list_order->with('rincian_order');
             if ($this->is_role) {
-                $list_order->where('user_id', session('log_user_id'));
+                $list_order->where('user_id', decode(session('log_uid')));
             }
             $list_order->whereYear('tgl_order', '=', $year);
             $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
@@ -287,7 +287,7 @@ class Perdagangan extends UserBaseController
         DB::beginTransaction();
         try {
             $data_order = [
-                'user_id'   => session('log_user_id'),
+                'user_id'   => decode(session('log_uid')),
                 'nama_klien'  => $request->nama_klien,
                 // 'no_hp_klien'  => $request->no_hp_klien,
                 'tgl_order' => re_date_format($request->tgl_order),
@@ -393,8 +393,62 @@ class Perdagangan extends UserBaseController
                 throw new \Exception('Gagal hapus data!');
             }
 
+            $rincian = RincianOrder::where('order_id', decode($id))->get();
+
+            foreach ($rincian as $val) {
+                $tarif_id = $val->tarif_id;
+                $jml = $val->jml_order;
+                Produk::whereHas('Tarif', function ($query) use ($tarif_id) {
+                    $query->where('id', $tarif_id);
+                })->increment('stok_produk', $jml); // return stok_produk
+            }
+
             $res = ['success' => true];
         } catch (\Exception $e) {
+            $res = ['success' => false, 'alert' => $e->getMessage()];
+        }
+
+        return json_encode($res);
+    }
+
+    public function deleteAll(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), ['dataid' => 'required', 'table' => 'required']);
+
+            if ($validator->fails()) {
+                throw new \Exception($validator->errors());
+            }
+
+            $dataid = explode(";", $request->dataid);
+            $table = $request->table;
+
+            $query = DB::table($table)->whereIn('id', $dataid);
+
+            if ($request->soft === 'true') {
+                $deleted = $query->update(['deleted_at' => now()]);
+            } else {
+                $deleted = $query->delete();
+            }
+            if (!$deleted) {
+                throw new \Exception('Gagal hapus data!');
+            }
+
+            $rincian = RincianOrder::whereIn('order_id', $dataid)->get();
+
+            foreach ($rincian as $val) {
+                $tarif_id = $val->tarif_id;
+                $jml = $val->jml_order;
+                Produk::whereHas('Tarif', function ($query) use ($tarif_id) {
+                    $query->where('id', $tarif_id);
+                })->increment('stok_produk', $jml); // return stok_produk
+            }
+
+            DB::commit();
+            $res = ['success' => true];
+        } catch (\Exception $e) {
+            DB::rollBack();
             $res = ['success' => false, 'alert' => $e->getMessage()];
         }
 

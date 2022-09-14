@@ -59,7 +59,7 @@ class Perdagangan extends UserBaseController
                 $query->where('nama_unit_usaha', '=', 'perdagangan');
             })
                 ->with('rincian_order')
-                // ->where('user_id', session('log_user_id'))
+                // ->where('user_id', decode(session('log_uid')))
                 ->whereYear('tgl_order', '=', $year)
                 ->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']])
                 ->orderByDesc('id')->get();
@@ -218,7 +218,7 @@ class Perdagangan extends UserBaseController
         DB::beginTransaction();
         try {
             $data_order = [
-                'user_id'   => session('log_user_id'),
+                'user_id'   => decode(session('log_uid')),
                 'nama_klien'  => $request->nama_klien,
                 // 'no_hp_klien'  => $request->no_hp_klien,
                 'tgl_order' => re_date_format($request->tgl_order),

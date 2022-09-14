@@ -82,7 +82,7 @@ class Percetakan extends UserBaseController
             // ->with('rincian_order')
             $list_order->with('rincian_cetakan');
             if ($this->is_role) {
-                $list_order->where('user_id', session('log_user_id'));
+                $list_order->where('user_id', decode(session('log_uid')));
             }
             $list_order->whereYear('tgl_order', '=', $year);
             $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
@@ -349,7 +349,7 @@ class Percetakan extends UserBaseController
         DB::beginTransaction();
         try {
             $data_order = [
-                'user_id'   => session('log_user_id'),
+                'user_id'   => decode(session('log_uid')),
                 'nama_klien'  => $request->nama_klien,
                 // 'no_hp_klien'  => $request->no_hp_klien,
                 'tgl_order' => re_date_format($request->tgl_order),

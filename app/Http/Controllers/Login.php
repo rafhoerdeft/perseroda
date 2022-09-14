@@ -13,7 +13,7 @@ class Login extends Controller
     public function __construct()
     {
         if (Auth::viaRemember()) {
-            return redirect()->route('user.dash');
+            return redirect()->route('dash');
         }
     }
 
@@ -37,13 +37,20 @@ class Login extends Controller
 
         if (Auth::attempt(['username' => $user, 'password' => $pass, 'active' => 1], $remember)) {
 
+            // $payload = array(
+            //     'ses_id'    => session()->getId(),
+            //     'ip_add'    => $request->ip()
+            // );
+            // $token = json_encode($payload);
+            // dd(encode($token));
+
             LogLogin::create([
                 'user_id' => Auth::user()->id,
                 'ip_address' => $request->ip(),
             ]);
 
             session()->put('log', Auth::user()->role->nama_role);
-            session()->put('log_user_id', Auth::user()->id);
+            session()->put('log_uid', encode(Auth::user()->id));
 
             return redirect()->route('dash');
         } else {

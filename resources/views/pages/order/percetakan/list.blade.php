@@ -162,9 +162,7 @@
     <script src="{{ asset('assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
-    <script src="{{ asset_ext . 'sweetalert/js/sweetalert.min.js' }}"></script>
     <script src="{{ asset_js . 'datatable_option.js' }}"></script>
-    <script src="{{ asset_js . 'delete_data.js' }}"></script>
     <script src="{{ asset_js . 'number_input.js' }}"></script>
 @endpush
 
@@ -252,6 +250,8 @@
 @if ($is_role)
     @push('js_plugin')
         <script src="{{ asset_js . 'confirm_dialog.js' }}"></script>
+        <script src="{{ asset_js . 'delete_data.js' }}"></script>
+        <script src="{{ asset_ext . 'sweetalert/js/sweetalert.min.js' }}"></script>
     @endpush
 
     @push('js_script')
