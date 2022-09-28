@@ -3,7 +3,9 @@
 namespace App\Http;
 
 use App\Http\Middleware\Auth;
+use App\Http\Middleware\IsLogin;
 use App\Http\Middleware\PreventBackHistory;
+use App\Http\Middleware\RememberMe;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -67,5 +69,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'auth.user' => Auth::class,
         'preventBackHistory' => PreventBackHistory::class,
+        'isLogin' => IsLogin::class,
     ];
 }

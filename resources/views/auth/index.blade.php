@@ -9,8 +9,8 @@
     {{-- <link href="{{ asset('assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css') }}" rel="stylesheet" /> --}}
     <link href="{{ asset('assets/plugins/metismenu/css/metisMenu.min.css') }}" rel="stylesheet" />
     <!-- loader-->
-    <link href="{{ asset('assets/css/pace.min.css') }}" rel="stylesheet" />
-    <script src="{{ asset('assets/js/pace.min.js') }}"></script>
+    {{-- <link href="{{ asset('assets/css/pace.min.css') }}" rel="stylesheet" />
+    <script src="{{ asset('assets/js/pace.min.js') }}"></script> --}}
     <!-- Bootstrap CSS -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
@@ -94,7 +94,6 @@
         .btn-login:hover:before {
             opacity: 1;
         }
-
     </style>
 </head>
 
@@ -140,8 +139,7 @@
                                     </div> --}}
 
                                     <div class="form-body">
-                                        <form class="row g-3" action="{{ route('auth.process') }}"
-                                            method="POST">
+                                        <form class="row g-3" action="{{ route('auth.process') }}" method="POST">
                                             @csrf
                                             <div class="col-12">
                                                 <label for="username" class="form-label">Username</label>
@@ -175,13 +173,13 @@
                                                 </div>
 
                                             </div>
-                                            {{-- <div class="col-md-6">
+                                            <div class="col-md-6">
                                                 <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox" id="remember"
                                                         name="remember" checked>
                                                     <label class="form-check-label" for="remember">Remember Me</label>
                                                 </div>
-                                            </div> --}}
+                                            </div>
 
                                             {{-- <div class="col-md-6 text-end"> <a
                                                     href="authentication-forgot-password.html">Forgot Password ?</a>

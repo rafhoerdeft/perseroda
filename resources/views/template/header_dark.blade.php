@@ -399,8 +399,7 @@
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="javascript:;"><i
-                                class="bx bx-user"></i><span>Profile</span></a>
+                    <li><a class="dropdown-item" href="javascript:;"><i class="bx bx-user"></i><span>Profile</span></a>
                     </li>
                     {{-- <li><a class="dropdown-item" href="javascript:;"><i
                                 class="bx bx-cog"></i><span>Settings</span></a>
@@ -418,7 +417,7 @@
                         <div class="dropdown-divider mb-0"></div>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="{{ route('auth') }}">
+                        <a class="dropdown-item" href="{{ route('auth.logout') }}">
                             <i class='bx bx-log-out-circle'></i><span>Logout</span>
                         </a>
                     </li>

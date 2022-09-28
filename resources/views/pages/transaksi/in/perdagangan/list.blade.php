@@ -112,7 +112,7 @@
                                             <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
                                         </a>
                                         <button type="button" onclick="deleteData(this)" data-id="{{ encode($row->id) }}"
-                                            data-link="{{ url('order/perdagangan/delete') }}" class="btn btn-sm btn-danger"
+                                            data-link="{{ url('transaksi/in/perdagangan/delete') }}" class="btn btn-sm btn-danger"
                                             title="Hapus Data">
                                             <i class="lni lni-trash me-0 font-sm"></i>
                                         </button>
@@ -175,8 +175,8 @@
     <script src="{{ asset('assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
-    <script src="{{ asset_js . 'datatable_option.js' }}"></script>
-    <script src="{{ asset_js . 'number_input.js' }}"></script>
+    <script src="{{ asset_js('datatable_option.js') }}"></script>
+    <script src="{{ asset_js('number_input.js') }}"></script>
 @endpush
 
 @push('js_script')
@@ -257,13 +257,13 @@
 
 @if ($is_role)
     @push('css_plugin')
-        <link href="{{ asset_ext . 'sweetalert/css/sweetalert.css' }}" rel="stylesheet" />
+        <link href="{{ asset_ext('sweetalert/css/sweetalert.css') }}" rel="stylesheet" />
     @endpush
 
     @push('js_plugin')
-        <script src="{{ asset_js . 'delete_data.js' }}"></script>
-        <script src="{{ asset_js . 'confirm_dialog.js' }}"></script>
-        <script src="{{ asset_ext . 'sweetalert/js/sweetalert.min.js' }}"></script>
+        <script src="{{ asset_js('delete_data.js') }}"></script>
+        <script src="{{ asset_js('confirm_dialog.js') }}"></script>
+        <script src="{{ asset_ext('sweetalert/js/sweetalert.min.js') }}"></script>
     @endpush
 
     @push('js_script')
@@ -405,4 +405,4 @@
     @endpush
 @endif
 
-@include('pages.order.perdagangan.modal_detail')
+@include('pages.transaksi.in.perdagangan.modal_detail')

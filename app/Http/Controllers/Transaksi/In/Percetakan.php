@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Order;
+namespace App\Http\Controllers\Transaksi\In;
 
 use App\Http\Controllers\UserBaseController;
 use App\Models\Produk;
@@ -35,16 +35,17 @@ class Percetakan extends UserBaseController
 
     public function index(Request $request)
     {
-        $breadcrumb = ['Order Percetakan'];
-        $form_title = 'Input Order';
+        $breadcrumb = ['Transaksi Percetakan'];
+        $form_title = 'Input Transaksi';
 
         $status_bayar_select = $request->status_bayar;
         $jenis_bayar_select = $request->jenis_bayar;
 
         $is_role = $this->is_role;
 
-        $main_route = 'order.percetakan.';
-        $link_datatable = url('order/percetakan/data/' . $status_bayar_select . '/' . $jenis_bayar_select);
+        $main_route = 'transaksi.in.percetakan.';
+
+        $link_datatable = url('transaksi/in/percetakan/data/' . $status_bayar_select . '/' . $jenis_bayar_select);
 
         $data = compact(
             'breadcrumb',
@@ -56,7 +57,7 @@ class Percetakan extends UserBaseController
             'link_datatable',
         );
 
-        return view('pages/order/percetakan/list', $data);
+        return view('pages/transaksi/in/percetakan/list', $data);
     }
 
     public function getData($status = '', $jenis = '', Request $request)
@@ -87,7 +88,7 @@ class Percetakan extends UserBaseController
             }
             $list_order->whereYear('tgl_order', '=', $year);
             $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
-            $list_order->orderByDesc('id')->get();
+            $list_order->latest()->get();
 
             $data_tables = DataTables::of($list_order);
             $raw_columns = [];
@@ -122,7 +123,7 @@ class Percetakan extends UserBaseController
                         $col_sts_byr .= "<div class='mt-1'>
                                             <button type='button' class='btn btn-sm btn-warning text-sm-b p-1 w-75' 
                                             data-post='" . json_encode(['id' => encode($row->id)]) . "'
-                                            data-link='" . url('order/percetakan/change/statusbayar') . "'
+                                            data-link='" . url('transaksi/in/percetakan/change/statusbayar') . "'
                                             data-table='list_data' 
                                             data-title='Ubah status bayar (" . $row->no_order . ")'
                                             data-text='Status bayar akan diubah menjadi LUNAS?'
@@ -149,14 +150,14 @@ class Percetakan extends UserBaseController
                                 </button>
                                 <div class='dropdown-menu dropdown-menu-right dropdown-menu-lg-end' style='margin: 0px;'>	
                                     <a class='dropdown-item " . ($row->jenis_bayar == 'bank' ? 'active bg-info' : '') . "' href='javascript:void(0);' data-post='" . json_encode(['id' => encode($row->id), 'jenis' => 'bank']) . "' 
-                                    data-link='" . url('order/percetakan/change/jenisbayar') . "'
+                                    data-link='" . url('transaksi/in/percetakan/change/jenisbayar') . "'
                                     data-table='list_data' 
                                     data-title='Ubah jenis bayar (" . $row->no_order . ")'
                                     data-text='Jenis bayar akan diubah menjadi Bank?'
                                     onclick='" . ($row->jenis_bayar == 'bank' ? '' : 'confirmDialog(this, false)') . "'>Bank</a>
 
                                     <a class='dropdown-item " . ($row->jenis_bayar == 'tunai' ? 'active' : '') . "' href='javascript:void(0);' data-post='" . json_encode(['id' => encode($row->id), 'jenis' => 'tunai']) . "' 
-                                    data-link='" . url('order/percetakan/change/jenisbayar') . "'
+                                    data-link='" . url('transaksi/in/percetakan/change/jenisbayar') . "'
                                     data-table='list_data' 
                                     data-title='Ubah jenis bayar (" . $row->no_order . ")'
                                     data-text='Jenis bayar akan diubah menjadi Tunai?' 
@@ -209,13 +210,13 @@ class Percetakan extends UserBaseController
                                     class="btn btn-sm btn-primary" title="Rincian Order">
                                     <i class="lni lni-list me-0 font-sm"></i>
                                 </button> ';
-                $btn_update = '<a href="' . route('order.percetakan.edit', ['id' => encode($row->id)]) . '"
+                $btn_update = '<a href="' . route('transaksi.in.percetakan.edit', ['id' => encode($row->id)]) . '"
                                     class="btn btn-info btn-sm" title="Update Data">
                                     <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
                                 </a> ';
                 $btn_delete = '<button type="button" onclick="deleteData(this, false)" 
                                     data-id="' . encode($row->id) . '"
-                                    data-link="' . url('order/percetakan/delete') . '"
+                                    data-link="' . url('transaksi/in/percetakan/delete') . '"
                                     data-table="list_data"
                                     class="btn btn-sm btn-danger" title="Hapus Data">
                                     <i class="lni lni-trash me-0 font-sm"></i>
@@ -279,21 +280,34 @@ class Percetakan extends UserBaseController
     {
         $no_order = $this->nomorOrder()['no_order'];
         $year = selected_year;
+        $main_route = 'transaksi.in.percetakan.';
 
-        $breadcrumb = ['order/percetakan' => 'Order Percetakan', 'Form Order']; //url => title
-        $form_title = 'Input Order - ' . $no_order;
-        return view('pages/order/percetakan/form', compact('breadcrumb', 'form_title', 'year'));
+        $breadcrumb = ['transaksi/in/percetakan' => 'Transaksi Percetakan', 'Form Input']; //url => title
+        $form_title = 'Input Transaksi - ' . $no_order;
+        return view('pages/transaksi/in/percetakan/form', compact(
+            'breadcrumb',
+            'form_title',
+            'year',
+            'main_route',
+        ));
     }
 
     public function edit($id = null)
     {
         $year = selected_year;
         $order = Order::with('rincian_cetakan')->find(decode($id));
+        $main_route = 'transaksi.in.percetakan.';
 
         $no_order = $order->no_order;
-        $breadcrumb = ['order/percetakan' => 'Order Percetakan', 'Form Order']; //url => title
-        $form_title = 'Edit Order - ' . $no_order;
-        return view('pages/order/percetakan/form', compact('breadcrumb', 'form_title', 'order', 'year'));
+        $breadcrumb = ['transaksi/in/percetakan' => 'Transaksi Percetakan', 'Form Input']; //url => title
+        $form_title = 'Edit Transaksi - ' . $no_order;
+        return view('pages/transaksi/in/percetakan/form', compact(
+            'breadcrumb',
+            'form_title',
+            'order',
+            'year',
+            'main_route'
+        ));
     }
 
     public function save(Request $request)
@@ -367,7 +381,7 @@ class Percetakan extends UserBaseController
                 $order_id = null;
                 $no_order = $this->nomorOrder(true);
                 if ($no_order === false) {
-                    throw new \Exception("Gagal simpan nomor order.");
+                    throw new \Exception("Gagal simpan nomor transaksi.in.");
                 }
                 $data_order['unit_usaha_id']   = $no_order['unit_usaha_id'];
                 $data_order['no_order']   = $no_order['no_order'];
@@ -392,7 +406,7 @@ class Percetakan extends UserBaseController
                 'dasar_oleh'  => $request->dasar_oleh,
                 'tgl_selesai'  => re_date_format($request->tgl_selesai),
                 'lampiran_konsep'  => $request->lampiran_konsep,
-                'koordinator_konsep_tgl'  => re_date_format($request->koordinator_konsep_tgl),
+                'koordinator_konsep_tgl'  => $request->koordinator_konsep_tgl != null ? re_date_format($request->koordinator_konsep_tgl) : null,
                 'koordinator_konsep_nama'  => $request->koordinator_konsep_nama,
                 'lain_lain'  => $request->lain_lain,
                 'jenis_pesanan'  => $request->jenis_pesanan,
@@ -427,9 +441,9 @@ class Percetakan extends UserBaseController
             alert_success('Data order berhasil disimpan.');
 
             if ($request->order_id) {
-                return redirect('order/percetakan');
+                return redirect('transaksi/in/percetakan');
             } else {
-                return redirect('order/percetakan/add');
+                return redirect('transaksi/in/percetakan/add');
             }
         } catch (\Exception $e) {
             DB::rollBack();

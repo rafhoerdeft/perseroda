@@ -13,6 +13,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.4",
+        "livewire/livewire": "^2.10",
         "spatie/laravel-activitylog": "^3.17",
         "yajra/laravel-datatables-oracle": "^9.19"
     },
@@ -31,13 +32,7 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helper/text_helper.php",
-            "app/Helper/global_helper.php",
-            "app/Helper/encrypt_helper.php",
-            "app/Helper/alert_helper.php",
-            "app/Helper/autocode_helper.php",
-            "app/Helper/uang_helper.php",
-            "app/Helper/date_helper.php"
+            "app/Helper/main_helper.php"
         ]
     },
     "autoload-dev": {

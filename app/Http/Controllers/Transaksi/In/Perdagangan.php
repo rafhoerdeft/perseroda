@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Order;
+namespace App\Http\Controllers\Transaksi\In;
 
 use App\Http\Controllers\UserBaseController;
 use App\Models\Produk;
 use App\Models\NoOrder;
 use App\Models\Order;
-use App\Models\RincianCetakan;
-// use App\Models\RincianOrder;
+use App\Models\RincianOrder;
+use App\Models\Tarif;
 use App\Models\UnitUsaha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
 
-class Percetakan extends UserBaseController
+class Perdagangan extends UserBaseController
 {
     protected $is_role;
 
@@ -35,16 +35,16 @@ class Percetakan extends UserBaseController
 
     public function index(Request $request)
     {
-        $breadcrumb = ['Order Percetakan'];
-        $form_title = 'Input Order';
+        $breadcrumb = ['Transaksi Perdagangan'];
+        $form_title = 'Input Transaksi';
 
         $status_bayar_select = $request->status_bayar;
         $jenis_bayar_select = $request->jenis_bayar;
 
         $is_role = $this->is_role;
 
-        $main_route = 'order.percetakan.';
-        $link_datatable = url('order/percetakan/data/' . $status_bayar_select . '/' . $jenis_bayar_select);
+        $main_route = 'transaksi.in.perdagangan.';
+        $link_datatable = url('transaksi/in/perdagangan/data/' . $status_bayar_select . '/' . $jenis_bayar_select);
 
         $data = compact(
             'breadcrumb',
@@ -56,7 +56,7 @@ class Percetakan extends UserBaseController
             'link_datatable',
         );
 
-        return view('pages/order/percetakan/list', $data);
+        return view('pages/transaksi/in/perdagangan/list', $data);
     }
 
     public function getData($status = '', $jenis = '', Request $request)
@@ -78,16 +78,15 @@ class Percetakan extends UserBaseController
             ];
 
             $list_order = Order::whereHas('unit_usaha', function ($query) {
-                $query->where('nama_unit_usaha', '=', 'percetakan');
+                $query->where('nama_unit_usaha', '=', 'perdagangan');
             });
-            // ->with('rincian_order')
-            $list_order->with('rincian_cetakan');
+            $list_order->with('rincian_order');
             if ($this->is_role) {
                 $list_order->where('user_id', Auth::user()->id);
             }
             $list_order->whereYear('tgl_order', '=', $year);
             $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
-            $list_order->orderByDesc('id')->get();
+            $list_order->latest()->get();
 
             $data_tables = DataTables::of($list_order);
             $raw_columns = [];
@@ -96,24 +95,13 @@ class Percetakan extends UserBaseController
             $data_tables->editColumn('tgl_order', function ($row) {
                 return date('d/m/Y', strtotime($row->tgl_order));
             });
-
-            // $data_tables->addColumn('total', function ($row) {
-            //     return nominal(
-            //         $row->rincian_order->sum(function ($item) {
-            //             return $item->jml_order * $item->tarif->harga + $item->biaya_tambahan;
-            //         })
-            //     );
-            // });
-
-            $data_tables->addColumn('dasar_jenis', function ($row) {
-                $bg = 'warning';
-                if ($row->rincian_cetakan->dasar_jenis == 'lesan') {
-                    $bg = 'secondary';
-                }
-                return '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . ucfirst($row->rincian_cetakan->dasar_jenis) . '</span>';
+            $data_tables->addColumn('total', function ($row) {
+                return nominal(
+                    $row->rincian_order->sum(function ($item) {
+                        return $item->jml_order * $item->tarif->harga + $item->biaya_tambahan;
+                    })
+                );
             });
-            $raw_columns[] = 'dasar_jenis';
-
             $data_tables->editColumn('status_bayar', function ($row) use ($status_bayar) {
                 if ($row->status_bayar == 0) {
                     $bg = 'danger';
@@ -122,7 +110,7 @@ class Percetakan extends UserBaseController
                         $col_sts_byr .= "<div class='mt-1'>
                                             <button type='button' class='btn btn-sm btn-warning text-sm-b p-1 w-75' 
                                             data-post='" . json_encode(['id' => encode($row->id)]) . "'
-                                            data-link='" . url('order/percetakan/change/statusbayar') . "'
+                                            data-link='" . url('transaksi/in/perdagangan/change/statusbayar') . "'
                                             data-table='list_data' 
                                             data-title='Ubah status bayar (" . $row->no_order . ")'
                                             data-text='Status bayar akan diubah menjadi LUNAS?'
@@ -149,14 +137,14 @@ class Percetakan extends UserBaseController
                                 </button>
                                 <div class='dropdown-menu dropdown-menu-right dropdown-menu-lg-end' style='margin: 0px;'>	
                                     <a class='dropdown-item " . ($row->jenis_bayar == 'bank' ? 'active bg-info' : '') . "' href='javascript:void(0);' data-post='" . json_encode(['id' => encode($row->id), 'jenis' => 'bank']) . "' 
-                                    data-link='" . url('order/percetakan/change/jenisbayar') . "'
+                                    data-link='" . url('transaksi/in/perdagangan/change/jenisbayar') . "'
                                     data-table='list_data' 
                                     data-title='Ubah jenis bayar (" . $row->no_order . ")'
                                     data-text='Jenis bayar akan diubah menjadi Bank?'
                                     onclick='" . ($row->jenis_bayar == 'bank' ? '' : 'confirmDialog(this, false)') . "'>Bank</a>
 
                                     <a class='dropdown-item " . ($row->jenis_bayar == 'tunai' ? 'active' : '') . "' href='javascript:void(0);' data-post='" . json_encode(['id' => encode($row->id), 'jenis' => 'tunai']) . "' 
-                                    data-link='" . url('order/percetakan/change/jenisbayar') . "'
+                                    data-link='" . url('transaksi/in/perdagangan/change/jenisbayar') . "'
                                     data-table='list_data' 
                                     data-title='Ubah jenis bayar (" . $row->no_order . ")'
                                     data-text='Jenis bayar akan diubah menjadi Tunai?' 
@@ -182,40 +170,21 @@ class Percetakan extends UserBaseController
             $data_tables->addColumn('action', function ($row) {
                 $btn_detail = '<button type="button" onclick="showDetail(this)" 
                                     data-no_order="' . $row->no_order . '"
-                                    data-dasar_jenis="' . text_uc($row->rincian_cetakan->dasar_jenis) . '"
-                                    data-dasar_tgl="' . format_date($row->rincian_cetakan->dasar_tgl) . '"
-                                    data-dasar_nomor="' . $row->rincian_cetakan->dasar_nomor . '"
-                                    data-dasar_oleh="' . $row->rincian_cetakan->dasar_oleh . '"
-                                    data-tgl_selesai="' . format_date($row->rincian_cetakan->tgl_selesai) . '"
-                                    data-lampiran_konsep="' . $row->rincian_cetakan->lampiran_konsep . '"
-                                    data-koordinator_konsep_tgl="' . format_date($row->rincian_cetakan->koordinator_konsep_tgl) . '"
-                                    data-koordinator_konsep_nama="' . $row->rincian_cetakan->koordinator_konsep_nama . '"
-                                    data-lain_lain="' . $row->rincian_cetakan->lain_lain . '"
-                                    data-jenis_pesanan="' . $row->rincian_cetakan->jenis_pesanan . '"
-                                    data-jml_pesanan="' . $row->rincian_cetakan->jml_pesanan . '"
-                                    data-jenis_bahan="' . $row->rincian_cetakan->jenis_bahan . '"
-                                    data-ukuran_isi="' . $row->rincian_cetakan->ukuran_isi . '"
-                                    data-warna_tinta="' . $row->rincian_cetakan->warna_tinta . '"
-                                    data-gramatur="' . $row->rincian_cetakan->gramatur . '"
-                                    data-muka_halaman="' . $row->rincian_cetakan->muka_halaman . '"
-                                    data-pakai_nomor="' . $row->rincian_cetakan->pakai_nomor . '"
-                                    data-mulai_nomor="' . $row->rincian_cetakan->mulai_nomor . '"
-                                    data-finishing_lepas="' . $row->rincian_cetakan->finishing_lepas . '"
-                                    data-finishing_lem="' . $row->rincian_cetakan->finishing_lem . '"
-                                    data-finishing_jilid="' . $row->rincian_cetakan->finishing_jilid . '"
-                                    data-finishing_paku="' . $row->rincian_cetakan->finishing_paku . '"
-                                    data-finishing_perforasi="' . $row->rincian_cetakan->finishing_perforasi . '"
-                                    data-ket_cetakan="' . $row->rincian_cetakan->ket_cetakan . '"
+                                    data-nama_produk="' . $row->rincian_order->implode('tarif.produk.nama_produk', ';') . '"
+                                    data-jml_order="' . $row->rincian_order->implode('jml_order', ';') . '"
+                                    data-harga="' . $row->rincian_order->implode('harga', ';') . '"
+                                    data-satuan="' . $row->rincian_order->implode('tarif.produk.satuan_produk', ';') . '"
+                                    data-biaya_tambahan="' . $row->rincian_order->implode('biaya_tambahan', ';') . '"
                                     class="btn btn-sm btn-primary" title="Rincian Order">
                                     <i class="lni lni-list me-0 font-sm"></i>
                                 </button> ';
-                $btn_update = '<a href="' . route('order.percetakan.edit', ['id' => encode($row->id)]) . '"
+                $btn_update = '<a href="' . route('transaksi.in.perdagangan.edit', ['id' => encode($row->id)]) . '"
                                     class="btn btn-info btn-sm" title="Update Data">
                                     <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
                                 </a> ';
                 $btn_delete = '<button type="button" onclick="deleteData(this, false)" 
                                     data-id="' . encode($row->id) . '"
-                                    data-link="' . url('order/percetakan/delete') . '"
+                                    data-link="' . url('transaksi/in/perdagangan/delete') . '"
                                     data-table="list_data"
                                     class="btn btn-sm btn-danger" title="Hapus Data">
                                     <i class="lni lni-trash me-0 font-sm"></i>
@@ -228,6 +197,7 @@ class Percetakan extends UserBaseController
                 return $action_btn;
             });
             $raw_columns[] = 'action';
+
             $data_tables->rawColumns($raw_columns);
 
             return $data_tables->make(true);
@@ -248,7 +218,7 @@ class Percetakan extends UserBaseController
                 $produk = Produk::with('tarif:id,harga,produk_id')->select(['id', 'nama_produk', 'kode_produk', 'stok_produk'])->whereHas('tarif', function ($query) {
                     $query->where('produk_id', '!=', null);
                     // $query->whereHas('unit_usaha', function ($query) {
-                    //     $query->where('nama_unit_usaha', 'percetakan');
+                    //     $query->where('nama_unit_usaha', 'perdagangan');
                     // });
                 })->where('stok_produk', '>', 0)->where(function ($query) use ($request) {
                     $query->where('kode_produk', 'LIKE', '%' . $request->search . '%')
@@ -279,73 +249,59 @@ class Percetakan extends UserBaseController
     {
         $no_order = $this->nomorOrder()['no_order'];
         $year = selected_year;
+        $main_route = 'transaksi.in.perdagangan.';
 
-        $breadcrumb = ['order/percetakan' => 'Order Percetakan', 'Form Order']; //url => title
-        $form_title = 'Input Order - ' . $no_order;
-        return view('pages/order/percetakan/form', compact('breadcrumb', 'form_title', 'year'));
+        $breadcrumb = ['transaksi/in/perdagangan' => 'Transaksi Perdagangan', 'Form Input']; //url => title
+        $form_title = 'Input Transaksi - ' . $no_order;
+        return view('pages/transaksi/in/perdagangan/form', compact(
+            'breadcrumb',
+            'form_title',
+            'year',
+            'main_route'
+        ));
     }
 
     public function edit($id = null)
     {
         $year = selected_year;
-        $order = Order::with('rincian_cetakan')->find(decode($id));
-
+        $order = Order::with('rincian_order')->find(decode($id));
+        $rincian_order = RincianOrder::with('tarif')->where('order_id', $order->id)->get();
+        $tot_order = $rincian_order->sum(function ($item) {
+            return $item->jml_order * $item->tarif->harga + $item->biaya_tambahan;
+        });
+        $rincian_data = [];
+        foreach ($rincian_order as $val) {
+            $rincian_data[$val->tarif_id] = $val->jml_order;
+        }
         $no_order = $order->no_order;
-        $breadcrumb = ['order/percetakan' => 'Order Percetakan', 'Form Order']; //url => title
+
+        $main_route = 'transaksi.in.perdagangan.';
+
+        $breadcrumb = ['transaksi/in/perdagangan' => 'Transaksi Perdagangan', 'Form Input']; //url => title
         $form_title = 'Edit Order - ' . $no_order;
-        return view('pages/order/percetakan/form', compact('breadcrumb', 'form_title', 'order', 'year'));
+        return view('pages/transaksi/in/perdagangan/form', compact(
+            'breadcrumb',
+            'form_title',
+            'order',
+            'year',
+            'rincian_order',
+            'tot_order',
+            'rincian_data',
+            'main_route'
+        ));
     }
 
     public function save(Request $request)
     {
-        $validate = [
+        $request->validate([
             'tgl_order'  => 'required|date_format:d/m/Y',
             'nama_klien'  => 'string|nullable',
             'jenis_bayar'  => 'required|in:tunai,bank',
-            // 'status_bayar'  => 'required|numeric|between:0,1',
-            // 'rincian_produk'  => 'required|string',
-            // 'total_bayar'  => 'required|integer',
-            // 'harga'  => 'required|regex:/^[0-9\.,]+$/|not_in:0',
-            // =========================================================
-            // Rincian Cetakan 
-            // =========================================================
-            'dasar_jenis' => 'required|in:lesan,surat',
-            'dasar_tgl'  => 'required|date_format:d/m/Y',
-            // 'dasar_nomor'  => 'string|nullable',
-            // 'dasar_oleh'  => 'string|nullable',
-            'tgl_selesai'  => 'required|date_format:d/m/Y',
-            'lampiran_konsep'  => 'required|numeric|between:0,1',
-            'koordinator_konsep_tgl'  => 'date_format:d/m/Y|nullable',
-            'koordinator_konsep_nama'  => 'string|nullable',
-            'lain_lain'  => 'string|nullable',
-            'jenis_pesanan'  => 'required|string',
-            'jml_pesanan'  => 'required|string',
-            'jenis_bahan'  => 'required|string',
-            'ukuran_isi'  => 'required|string',
-            'warna_tinta'  => 'required|string',
-            'gramatur'  => 'required|string',
-            'muka_halaman'  => 'required|string',
-            'pakai_nomor'  => 'required|numeric|between:0,1',
-            'finishing_lepas'  => 'numeric|between:0,1',
-            'finishing_lem'  => 'numeric|between:0,1',
-            'finishing_jilid'  => 'numeric|between:0,1',
-            'finishing_paku'  => 'numeric|between:0,1',
-            'finishing_perforasi'  => 'numeric|between:0,1',
-            'ket_cetakan'  => 'string|nullable',
-        ];
-
-        $validate['mulai_nomor'] = 'numeric|nullable';
-        if ($request->pakai_nomor == '1') {
-            $validate['mulai_nomor'] = 'required|numeric';
-        }
-
-        if ($request->dasar_jenis == 'lesan') {
-            $validate['dasar_oleh'] = 'required|string';
-        } else {
-            $validate['dasar_nomor'] = 'required|string';
-        }
-
-        $request->validate($validate);
+            'status_bayar'  => 'required|numeric|between:0,1',
+            'rincian_produk'  => 'required|string',
+            'total_bayar'  => 'required|integer',
+            // 'harga'  => 'required|regex:/^[0-9\.,]+$/|not_in:0'
+        ]);
 
         DB::beginTransaction();
         try {
@@ -354,11 +310,11 @@ class Percetakan extends UserBaseController
                 'nama_klien'  => $request->nama_klien,
                 // 'no_hp_klien'  => $request->no_hp_klien,
                 'tgl_order' => re_date_format($request->tgl_order),
-                'status_order' => 0,
-                'jenis_order' => ($request->dasar_jenis == 'lesan' ? 'langsung' : 'dokumen'),
-                // 'status_bayar' => $request->status_bayar,
+                'status_order' => 3,
+                // 'jenis_order' => $request->jenis_order,
+                'status_bayar' => $request->status_bayar,
                 'jenis_bayar' => $request->jenis_bayar,
-                // 'total_bayar' => $request->total_bayar,
+                'total_bayar' => $request->total_bayar,
             ];
 
             if ($request->order_id) {
@@ -367,7 +323,7 @@ class Percetakan extends UserBaseController
                 $order_id = null;
                 $no_order = $this->nomorOrder(true);
                 if ($no_order === false) {
-                    throw new \Exception("Gagal simpan nomor order.");
+                    throw new \Exception("Gagal simpan nomor transaksi.in.");
                 }
                 $data_order['unit_usaha_id']   = $no_order['unit_usaha_id'];
                 $data_order['no_order']   = $no_order['no_order'];
@@ -384,57 +340,60 @@ class Percetakan extends UserBaseController
                 throw new \Exception("Gagal simpan data order");
             }
 
-            $data_rincian_cetakan = [
-                'order_id' => $order_id,
-                'dasar_jenis' => $request->dasar_jenis,
-                'dasar_tgl'  => re_date_format($request->dasar_tgl),
-                'dasar_nomor'  => $request->dasar_nomor,
-                'dasar_oleh'  => $request->dasar_oleh,
-                'tgl_selesai'  => re_date_format($request->tgl_selesai),
-                'lampiran_konsep'  => $request->lampiran_konsep,
-                'koordinator_konsep_tgl'  => re_date_format($request->koordinator_konsep_tgl),
-                'koordinator_konsep_nama'  => $request->koordinator_konsep_nama,
-                'lain_lain'  => $request->lain_lain,
-                'jenis_pesanan'  => $request->jenis_pesanan,
-                'jml_pesanan'  => $request->jml_pesanan,
-                'jenis_bahan'  => $request->jenis_bahan,
-                'ukuran_isi'  => $request->ukuran_isi,
-                'warna_tinta'  => $request->warna_tinta,
-                'gramatur'  => $request->gramatur,
-                'muka_halaman'  => $request->muka_halaman,
-                'pakai_nomor'  => $request->pakai_nomor,
-                'mulai_nomor'  => $request->mulai_nomor,
-                'finishing_lepas'  => ($request->finishing_lepas ?? 0),
-                'finishing_lem'  => ($request->finishing_lem ?? 0),
-                'finishing_jilid'  => ($request->finishing_jilid ?? 0),
-                'finishing_paku'  => ($request->finishing_paku ?? 0),
-                'finishing_perforasi'  => ($request->finishing_perforasi ?? 0),
-                'ket_cetakan'  => $request->ket_cetakan,
-            ];
+            // else {
+            //     RincianOrder::where('order_id', $order_id)->delete();
+            // }
 
-            $rincian_cetakan = RincianCetakan::where('order_id', '=', $order_id);
-            if ($rincian_cetakan->count() > 0) { // Check if data exist
-                $save_rincian = $rincian_cetakan->update($data_rincian_cetakan);
-            } else {
-                $save_rincian = RincianCetakan::create($data_rincian_cetakan);
+            $rincian_produk = json_decode($request->rincian_produk, true); // New rincian produk
+
+            if ($request->rincian_produk_old) { // Rincian produk before update
+                $rincian_produk_old = json_decode($request->rincian_produk_old, true);
+
+                foreach ($rincian_produk_old as $tarif_id => $jml) {
+                    Produk::whereHas('Tarif', function ($query) use ($tarif_id) {
+                        $query->where('id', $tarif_id);
+                    })->increment('stok_produk', $jml); // return stok_produk
+
+                    if (!array_key_exists($tarif_id, $rincian_produk)) {
+                        RincianOrder::where([['order_id', '=', $order_id], ['tarif_id', '=', $tarif_id]])->delete(); // Delete rincian produk old
+                    }
+                }
             }
 
-            if (!$save_rincian) {
-                throw new \Exception("Gagal simpan rincian cetakan");
+            // $data_rincian = [];
+            foreach ($rincian_produk as $tarif_id => $jml) {
+                $data_rincian = [
+                    'order_id'      => $order_id,
+                    'tarif_id'      => $tarif_id,
+                    'jml_order'     => $jml,
+                    'harga'         => Tarif::find($tarif_id)->harga,
+                ];
+
+                Produk::whereHas('Tarif', function ($query) use ($tarif_id) {
+                    $query->where('id', $tarif_id);
+                })->decrement('stok_produk', $jml); // reduce stok_produk
+
+                $rincian_data = RincianOrder::where([['order_id', '=', $order_id], ['tarif_id', '=', $tarif_id]]);
+                if ($rincian_data->count() > 0) { // Check if data exist
+                    $rincian_data->update($data_rincian);
+                } else {
+                    RincianOrder::create($data_rincian);
+                }
             }
+
+            // RincianOrder::upsert($data_rincian, ['order_id', 'tarif_id'], ['jml_order', 'harga']); // Update rincian order OR create new data
 
             DB::commit();
             alert_success('Data order berhasil disimpan.');
-
-            if ($request->order_id) {
-                return redirect('order/percetakan');
-            } else {
-                return redirect('order/percetakan/add');
-            }
         } catch (\Exception $e) {
             DB::rollBack();
             alert_failed('Data order gagal disimpan.' . $e->getMessage());
-            return back()->withInput();
+        }
+
+        if ($request->order_id) {
+            return redirect('transaksi/in/perdagangan');
+        } else {
+            return redirect('transaksi/in/perdagangan/add');
         }
     }
 
@@ -453,8 +412,62 @@ class Percetakan extends UserBaseController
                 throw new \Exception('Gagal hapus data!');
             }
 
+            $rincian = RincianOrder::where('order_id', decode($id))->get();
+
+            foreach ($rincian as $val) {
+                $tarif_id = $val->tarif_id;
+                $jml = $val->jml_order;
+                Produk::whereHas('Tarif', function ($query) use ($tarif_id) {
+                    $query->where('id', $tarif_id);
+                })->increment('stok_produk', $jml); // return stok_produk
+            }
+
             $res = ['success' => true];
         } catch (\Exception $e) {
+            $res = ['success' => false, 'alert' => $e->getMessage()];
+        }
+
+        return json_encode($res);
+    }
+
+    public function deleteAll(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), ['dataid' => 'required', 'table' => 'required']);
+
+            if ($validator->fails()) {
+                throw new \Exception($validator->errors());
+            }
+
+            $dataid = explode(";", $request->dataid);
+            $table = $request->table;
+
+            $query = DB::table($table)->whereIn('id', $dataid);
+
+            if ($request->soft === 'true') {
+                $deleted = $query->update(['deleted_at' => now()]);
+            } else {
+                $deleted = $query->delete();
+            }
+            if (!$deleted) {
+                throw new \Exception('Gagal hapus data!');
+            }
+
+            $rincian = RincianOrder::whereIn('order_id', $dataid)->get();
+
+            foreach ($rincian as $val) {
+                $tarif_id = $val->tarif_id;
+                $jml = $val->jml_order;
+                Produk::whereHas('Tarif', function ($query) use ($tarif_id) {
+                    $query->where('id', $tarif_id);
+                })->increment('stok_produk', $jml); // return stok_produk
+            }
+
+            DB::commit();
+            $res = ['success' => true];
+        } catch (\Exception $e) {
+            DB::rollBack();
             $res = ['success' => false, 'alert' => $e->getMessage()];
         }
 
@@ -465,7 +478,7 @@ class Percetakan extends UserBaseController
     {
         $year = selected_year;
 
-        $unit_usaha = UnitUsaha::where('nama_unit_usaha', '=', 'percetakan')->first();
+        $unit_usaha = UnitUsaha::where('nama_unit_usaha', '=', 'perdagangan')->first();
 
         $where = [
             'unit_usaha_id' => $unit_usaha->id,

@@ -16,11 +16,12 @@
         <th>No. Order</th>
         <th>Nama Kustomer</th>
         <th>Tanggal Order</th>
+        <th>Dasar</th>
         {{-- <th>Status Order</th> --}}
         {{-- <th>Jenis Order</th> --}}
         <th>Status Bayar</th>
         <th>Jenis Bayar</th>
-        <th>Total (Rp)</th>
+        {{-- <th>Total (Rp)</th> --}}
     </tr>
 @endsection
 
@@ -90,30 +91,19 @@
                                 <td align="center">{{ $no++ }}</td>
                                 @if ($is_role)
                                     <td>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)"
-                                                name="select_row[]" id="select_row_{{ $row->id }}"
+                                        <div class="skin skin-check">
+                                            <input type="checkbox" name="select_row[]" id="select_row_{{ $row->id }}"
                                                 value="{{ $row->id }}">
                                         </div>
                                     </td>
                                     <td>
-                                        <button type="button" onclick="showDetail(this)"
-                                            data-nama_produk="{{ $row->rincian_order->implode('tarif.produk.nama_produk', ';') }}"
-                                            data-jml_order="{{ $row->rincian_order->implode('jml_order', ';') }}"
-                                            data-harga="{{ $row->rincian_order->implode('harga', ';') }}"
-                                            data-satuan="{{ $row->rincian_order->implode('tarif.produk.satuan_produk', ';') }}"
-                                            data-biaya_tambahan="{{ $row->rincian_order->implode('biaya_tambahan', ';') }}"
-                                            class="btn btn-sm btn-primary" title="Rincian Order">
-                                            <i class="lni lni-list me-0 font-sm"></i>
-                                        </button>
-
                                         <a href="{{ route($main_route . 'edit', ['id' => encode($row->id)]) }}"
                                             class="btn btn-info btn-sm" title="Update Data">
                                             <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
                                         </a>
                                         <button type="button" onclick="deleteData(this)" data-id="{{ encode($row->id) }}"
-                                            data-link="{{ url('order/perdagangan/delete') }}" class="btn btn-sm btn-danger"
-                                            title="Hapus Data">
+                                            data-link="{{ url('transaksi/in/percetakan/delete') }}"
+                                            class="btn btn-sm btn-danger" title="Hapus Data">
                                             <i class="lni lni-trash me-0 font-sm"></i>
                                         </button>
                                     </td>
@@ -121,14 +111,8 @@
                                 <td align="center">{{ $row->no_order }}</td>
                                 <td>{{ $row->nama_klien }}</td>
                                 <td align="center">{{ date('d/m/Y H:i', strtotime($row->tgl_order)) }}</td>
-                                <td align="center">
-                                    <span
-                                        class="badge rounded-pill bg-{{ $row->status_bayar == 0 ? 'danger' : 'success' }} w-75">
-                                        {{ $status_bayar[$row->status_bayar] }}</span>
-                                </td>
-                                <td align="center"><span
-                                        class="badge bg-{{ $row->jenis_bayar == 'bank' ? 'info' : 'primary' }} w-75">{{ text_uc($row->jenis_bayar) }}</span>
-                                </td>
+                                <td align="center">{{ $status_bayar[$row->status_bayar] }}</td>
+                                <td align="center">{{ $row->jenis_bayar }}</td>
                                 <td align="right">
                                     {{ nominal(
                                         $row->rincian_order->sum(function ($item) {
@@ -175,8 +159,8 @@
     <script src="{{ asset('assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
-    <script src="{{ asset_js . 'datatable_option.js' }}"></script>
-    <script src="{{ asset_js . 'number_input.js' }}"></script>
+    <script src="{{ asset_js('datatable_option.js') }}"></script>
+    <script src="{{ asset_js('number_input.js') }}"></script>
 @endpush
 
 @push('js_script')
@@ -213,6 +197,10 @@
                 class: "text-center"
             },
             {
+                data: 'dasar_jenis',
+                class: "text-center"
+            },
+            {
                 data: 'status_bayar',
                 class: "text-center"
             },
@@ -220,10 +208,10 @@
                 data: 'jenis_bayar',
                 class: "text-center"
             },
-            {
-                data: 'total',
-                class: "text-end"
-            }
+            // {
+            //     data: 'total',
+            //     class: "text-end"
+            // }
         ];
 
         // Active checkbox according to role
@@ -241,6 +229,7 @@
             createDataTableServerSide('list_data', url, columns, info, msg);
         } else {
             createDataTableServerSide('list_data', url, columns, info, msg, true, num_cols, remove_cols);
+
         }
     </script>
 
@@ -257,36 +246,17 @@
 
 @if ($is_role)
     @push('css_plugin')
-        <link href="{{ asset_ext . 'sweetalert/css/sweetalert.css' }}" rel="stylesheet" />
+        <link href="{{ asset_ext('sweetalert/css/sweetalert.css') }}" rel="stylesheet" />
     @endpush
 
     @push('js_plugin')
-        <script src="{{ asset_js . 'delete_data.js' }}"></script>
-        <script src="{{ asset_js . 'confirm_dialog.js' }}"></script>
-        <script src="{{ asset_ext . 'sweetalert/js/sweetalert.min.js' }}"></script>
+        <script src="{{ asset_js('confirm_dialog.js') }}"></script>
+        <script src="{{ asset_js('delete_data.js') }}"></script>
+        <script src="{{ asset_ext('sweetalert/js/sweetalert.min.js') }}"></script>
     @endpush
 
     @push('js_script')
         <script>
-            // Highlight ROW on click tr 
-            $(document).ready(function() {
-                $('.table').on('click', 'tbody tr', function(e) {
-                    var td = $(this).children();
-                    var checkbox = td.eq(1).find('input');
-                    var checked = checkbox.prop('checked');
-                    if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' && e.target
-                        .tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
-                        if (checked) {
-                            checkbox.prop('checked', false);
-                            checkInput(checkbox, false);
-                        } else {
-                            checkbox.prop('checked', true);
-                            checkInput(checkbox, true);
-                        }
-                    }
-                });
-            });
-
             // Check or uncheck 
             function onCheckChange(data) {
                 let check_id = $(data).val();
@@ -362,9 +332,7 @@
 
                 $('.page-breadcrumb .badge').html(count_select);
             }
-        </script>
 
-        <script>
             // Automatic find row checked when change page 
             function checkChangePage() {
                 var select_id = $('#delete_all').val();
@@ -376,13 +344,32 @@
                     checkbox.closest('tr').addClass('row_check');
                 });
             }
+
+            // Highlight ROW on click tr 
+            $(document).ready(function() {
+                $('.table').on('click', 'tbody tr', function(e) {
+                    var td = $(this).children();
+                    var checkbox = td.eq(1).find('input');
+                    var checked = checkbox.prop('checked');
+                    if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' && e.target
+                        .tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
+                        if (checked) {
+                            checkbox.prop('checked', false);
+                            checkInput(checkbox, false);
+                        } else {
+                            checkbox.prop('checked', true);
+                            checkInput(checkbox, true);
+                        }
+                    }
+                });
+            });
         </script>
 
         {{-- Delete All function --}}
         <script>
             function deleteAll() {
                 var dataid = $('#delete_all').val();
-                var link = "{{ route($main_route . 'delete.all') }}";
+                var link = "{{ url('all/delete') }}";
                 var table = "order";
                 var data = {
                     dataid: dataid,
@@ -405,4 +392,4 @@
     @endpush
 @endif
 
-@include('pages.order.perdagangan.modal_detail')
+@include('pages.transaksi.in.percetakan.modal_detail')

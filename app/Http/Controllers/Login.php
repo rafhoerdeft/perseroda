@@ -10,12 +10,10 @@ use Illuminate\Support\Facades\Auth;
 class Login extends Controller
 {
 
-    public function __construct()
-    {
-        if (Auth::viaRemember()) {
-            return redirect()->route('dash');
-        }
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('guest:user')->except('postLogout');
+    // }
 
     public function index()
     {
@@ -35,6 +33,8 @@ class Login extends Controller
         $pass = $request->password;
         $remember = $request->has('remember') ? true : false;
 
+        $this->setTimeDuration(720); // Set time duration cookies
+
         if (Auth::attempt(['username' => $user, 'password' => $pass, 'active' => 1], $remember)) {
 
             // $payload = array(
@@ -49,8 +49,8 @@ class Login extends Controller
                 'ip_address' => $request->ip(),
             ]);
 
-            session()->put('log', Auth::user()->role->nama_role);
-            session()->put('log_uid', encode(Auth::user()->id));
+            // session()->put('log', Auth::user()->role->nama_role);
+            // session()->put('log_uid', encode(Auth::user()->id));
 
             return redirect()->route('dash');
         } else {
@@ -58,10 +58,18 @@ class Login extends Controller
         }
     }
 
+    public function setTimeDuration($minutes)
+    {
+        Auth::setRememberDuration($minutes);
+    }
+
     public function logout()
     {
         // Hapus semua data pada session
         // session()->destroy();
+
+        Auth::logout();
+        Session::forget(['log', 'nav']);
 
         // redirect ke halaman login	
         return redirect()->route('auth');

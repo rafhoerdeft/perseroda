@@ -1,33 +1,52 @@
 @extends('template.master')
 
+{{-- @section('button-top')
+    <div class="row">
+        <div class="col-md-6">
+            <input type="hidden" name="delete_all" id="delete_all">
+            <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100 mb-1" type="button"
+                onclick="deleteAll()" disabled>
+                <i class="bx bx-trash"></i>Hapus Data
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
+            </button>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ route($main_route.'add') }}" class="btn btn-primary w-100">
+                <i class="bx bx-list-plus"></i>Tambah Data
+            </a>
+        </div>
+    </div>
+@endsection --}}
+
 @section('column-table')
     <tr>
         <th>No</th>
-        {{-- Active checkbox according to role --}}
         @if ($is_role)
             <th>
                 <div class="form-check">
-                    <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="select_row_all"
+                    <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="plh_brg_all"
                         id="check_all" value="0">
                 </div>
             </th>
+            <th>Aksi</th>
         @endif
-        <th>Aksi</th>
-        <th>No. Order</th>
-        <th>Nama Kustomer</th>
-        <th>Tanggal Order</th>
-        {{-- <th>Status Order</th> --}}
-        {{-- <th>Jenis Order</th> --}}
+        <th>Nomor Nota</th>
+        <th>Tanggal Nota</th>
+        <th>Rekanan</th>
+        <th>Total Harga (Rp)</th>
         <th>Status Bayar</th>
         <th>Jenis Bayar</th>
-        <th>Total (Rp)</th>
+        <th>Keterangan</th>
     </tr>
 @endsection
 
 @section('content')
+    {{-- <h6 class="mb-0 text-uppercase">List Data</h6>
+    <hr /> --}}
     {!! show_alert() !!}
     <div class="card">
         <div class="card-body">
+            {{-- <h5 class="card-title">List Data</h5> --}}
             <div class="page-breadcrumb d-sm-flex align-items-center">
                 <h5 class="card-title">List Data</h5>
                 @if ($is_role)
@@ -51,7 +70,7 @@
                     </div>
                 @endif
             </div>
-            <hr />
+            <hr>
 
             <form class="row" method="GET">
                 <div class="col-md-3 mb-1">
@@ -72,7 +91,6 @@
                     <button type="submit" class="btn btn-success w-100"> <i class="fa-regular fa-eye"></i> Tampil</button>
                 </div>
             </form>
-
             <hr />
 
             <div class="table-responsive">
@@ -80,47 +98,43 @@
                     <thead class="text-center">
                         @yield('column-table')
                     </thead>
-
-                    {{-- <tbody>
+                    <tbody>
                         @php
                             $no = 1;
                         @endphp
-                        @foreach ($list_order as $row)
+                        @foreach ($list_data as $row)
                             <tr>
                                 <td align="center">{{ $no++ }}</td>
                                 @if ($is_role)
                                     <td>
                                         <div class="form-check">
                                             <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)"
-                                                name="select_row[]" id="select_row_{{ $row->id }}"
+                                                name="plh_brg[]" id="plh_brg_{{ $row->id }}"
                                                 value="{{ $row->id }}">
                                         </div>
                                     </td>
-                                    <td>
-                                        <button type="button" onclick="showDetail(this)"
-                                            data-nama_produk="{{ $row->rincian_order->implode('tarif.produk.nama_produk', ';') }}"
-                                            data-jml_order="{{ $row->rincian_order->implode('jml_order', ';') }}"
-                                            data-harga="{{ $row->rincian_order->implode('harga', ';') }}"
-                                            data-satuan="{{ $row->rincian_order->implode('tarif.produk.satuan_produk', ';') }}"
-                                            data-biaya_tambahan="{{ $row->rincian_order->implode('biaya_tambahan', ';') }}"
-                                            class="btn btn-sm btn-primary" title="Rincian Order">
-                                            <i class="lni lni-list me-0 font-sm"></i>
-                                        </button>
-
+                                @endif
+                                <td>
+                                    <a href="" class="btn btn-primary btn-sm" title="Tambah Rincian"><i
+                                            class="lni lni-circle-plus me-0 text-white font-sm align-baseline"></i>
+                                    </a>
+                                    @if ($is_role)
                                         <a href="{{ route($main_route . 'edit', ['id' => encode($row->id)]) }}"
                                             class="btn btn-info btn-sm" title="Update Data">
-                                            <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
+                                            <i class="lni lni-pencil-alt me-0 text-white font-sm align-baseline"></i>
                                         </a>
                                         <button type="button" onclick="deleteData(this)" data-id="{{ encode($row->id) }}"
-                                            data-link="{{ url('order/perdagangan/delete') }}" class="btn btn-sm btn-danger"
-                                            title="Hapus Data">
-                                            <i class="lni lni-trash me-0 font-sm"></i>
+                                            data-link="{{ url(str_replace('.', '/', $main_route) . 'delete') }}"
+                                            class="btn btn-sm btn-danger" title="Hapus Data">
+                                            <i class="lni lni-trash me-0 font-sm align-baseline"></i>
                                         </button>
-                                    </td>
-                                @endif
-                                <td align="center">{{ $row->no_order }}</td>
-                                <td>{{ $row->nama_klien }}</td>
-                                <td align="center">{{ date('d/m/Y H:i', strtotime($row->tgl_order)) }}</td>
+                                    @endif
+                                </td>
+                                <td>{{ $row->no_nota }}</td>
+                                <td>{{ format_date($row->tgl_nota) }}</td>
+                                <td>{{ $row->rekanan->nama }}</td>
+                                <td align="right">{{ isset($row->harga_total) ? nominal($row->harga_total) : '' }}
+                                </td>
                                 <td align="center">
                                     <span
                                         class="badge rounded-pill bg-{{ $row->status_bayar == 0 ? 'danger' : 'success' }} w-75">
@@ -129,17 +143,10 @@
                                 <td align="center"><span
                                         class="badge bg-{{ $row->jenis_bayar == 'bank' ? 'info' : 'primary' }} w-75">{{ text_uc($row->jenis_bayar) }}</span>
                                 </td>
-                                <td align="right">
-                                    {{ nominal(
-                                        $row->rincian_order->sum(function ($item) {
-                                            return $item->jml_order * $item->tarif->harga + $item->biaya_tambahan;
-                                        }),
-                                    ) }}
-                                </td>
+                                <td>{{ $row->ket_nota }}</td>
                             </tr>
                         @endforeach
-                    </tbody> --}}
-
+                    </tbody>
                     <tfoot class="text-center">
                         @yield('column-table')
                     </tfoot>
@@ -175,73 +182,18 @@
     <script src="{{ asset('assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
-    <script src="{{ asset_js . 'datatable_option.js' }}"></script>
-    <script src="{{ asset_js . 'number_input.js' }}"></script>
+    <script src="{{ asset_js('datatable_option.js') }}"></script>
 @endpush
 
 @push('js_script')
-    {{-- Config DataTable Serverside with Export DataTable --}}
     <script>
-        var num_cols = 8;
-        var remove_cols = 1;
-        var tgl_awal = "{{ date('01/01/Y') }}";
-        var tgl_akhir = "{{ date('d/m/Y') }}";
-        var info = "List Order";
-        var msg = tgl_awal + " - " + tgl_akhir;
-        var url = "{{ $link_datatable }}";
-        var columns = [{
-                data: 'DT_RowIndex',
-                class: "text-center",
-                orderable: false,
-                searchable: false
-            },
-            {
-                data: 'action',
-                class: "text-center",
-                orderable: false,
-                searchable: false
-            },
-            {
-                data: 'no_order',
-                class: "text-center"
-            },
-            {
-                data: 'nama_klien',
-            },
-            {
-                data: 'tgl_order',
-                class: "text-center"
-            },
-            {
-                data: 'status_bayar',
-                class: "text-center"
-            },
-            {
-                data: 'jenis_bayar',
-                class: "text-center"
-            },
-            {
-                data: 'total',
-                class: "text-end"
-            }
-        ];
+        var tgl_awal = "{{ date('d-m-Y') }}";
+        var info = "Daftar Nota";
+        var msg = "Tanggal " + tgl_awal;
 
-        // Active checkbox according to role
-        if ("{{ $is_role }}") {
-            var check_box = {
-                data: 'check_all',
-                class: "text-center",
-                orderable: false,
-                searchable: false
-            };
-            columns.splice(1, 0, check_box); // insert array in specific position At Index 1
-
-            num_cols = 9;
-            remove_cols = 2;
-            createDataTableServerSide('list_data', url, columns, info, msg);
-        } else {
-            createDataTableServerSide('list_data', url, columns, info, msg, true, num_cols, remove_cols);
-        }
+        // $('#list_data').on('draw.dt', function() {
+        //     cekChangePage();
+        // });
     </script>
 
     {{-- Select2 config --}}
@@ -257,37 +209,21 @@
 
 @if ($is_role)
     @push('css_plugin')
-        <link href="{{ asset_ext . 'sweetalert/css/sweetalert.css' }}" rel="stylesheet" />
+        <link href="{{ asset_ext('sweetalert/css/sweetalert.css') }}" rel="stylesheet" />
     @endpush
 
     @push('js_plugin')
-        <script src="{{ asset_js . 'delete_data.js' }}"></script>
-        <script src="{{ asset_js . 'confirm_dialog.js' }}"></script>
-        <script src="{{ asset_ext . 'sweetalert/js/sweetalert.min.js' }}"></script>
+        <script src="{{ asset_ext('sweetalert/js/sweetalert.min.js') }}"></script>
+        <script src="{{ asset_js('delete_data.js') }}"></script>
     @endpush
 
     @push('js_script')
         <script>
-            // Highlight ROW on click tr 
-            $(document).ready(function() {
-                $('.table').on('click', 'tbody tr', function(e) {
-                    var td = $(this).children();
-                    var checkbox = td.eq(1).find('input');
-                    var checked = checkbox.prop('checked');
-                    if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' && e.target
-                        .tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
-                        if (checked) {
-                            checkbox.prop('checked', false);
-                            checkInput(checkbox, false);
-                        } else {
-                            checkbox.prop('checked', true);
-                            checkInput(checkbox, true);
-                        }
-                    }
-                });
-            });
+            createDataTableExport('list_data', info, msg, 9);
+        </script>
 
-            // Check or uncheck 
+        <script>
+            // $('.form-check-input').on('change', function() {
             function onCheckChange(data) {
                 let check_id = $(data).val();
 
@@ -317,8 +253,8 @@
                     }
                 }
             }
+            // });
 
-            // Add value on input delete when checked 
             function checkInput(data, checked) {
                 let id = $(data).val();
                 var tr = $(data).closest('tr');
@@ -362,28 +298,41 @@
 
                 $('.page-breadcrumb .badge').html(count_select);
             }
-        </script>
 
-        <script>
-            // Automatic find row checked when change page 
-            function checkChangePage() {
-                var select_id = $('#delete_all').val();
-                var arr = select_id.split(";");
-
-                arr.forEach(function(val, i) {
-                    var checkbox = $('.form-check input:checkbox[value="' + val + '"]');
-                    checkbox.prop('checked', true);
-                    checkbox.closest('tr').addClass('row_check');
+            function cekChangePage() {
+                $('.form-check-input').each(function(i, data) {
+                    let tr = $(this).closest('tr');
+                    let ids = $(data).val();
+                    if (ids != 0) { // not input in data
+                        // console.log(tr);
+                    }
                 });
             }
+
+            $(document).ready(function() {
+                $('.table').on('click', 'tbody tr', function(e) {
+                    var td = $(this).children();
+                    var checkbox = td.eq(1).find('input');
+                    var checked = checkbox.prop('checked');
+                    if (e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'INPUT' && e.target
+                        .tagName !== 'BUTTON' && e.target.tagName !== 'A' && e.target.tagName !== 'I') {
+                        if (checked) {
+                            checkbox.prop('checked', false);
+                            checkInput(checkbox, false);
+                        } else {
+                            checkbox.prop('checked', true);
+                            checkInput(checkbox, true);
+                        }
+                    }
+                });
+            });
         </script>
 
-        {{-- Delete All function --}}
         <script>
             function deleteAll() {
                 var dataid = $('#delete_all').val();
-                var link = "{{ route($main_route . 'delete.all') }}";
-                var table = "order";
+                var link = "{{ url('all/delete') }}";
+                var table = "nota";
                 var data = {
                     dataid: dataid,
                     link: link,
@@ -398,11 +347,13 @@
 @else
     @push('js_script')
         <script>
+            createDataTableExport('list_data', info, msg, 7, [0], 0);
+        </script>
+
+        <script>
             function checkChangePage() {
                 return true;
             }
         </script>
     @endpush
 @endif
-
-@include('pages.order.perdagangan.modal_detail')

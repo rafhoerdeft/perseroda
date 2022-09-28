@@ -1,38 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Transaksi\Masuk;
 
+use App\Http\Controllers\UserBaseController;
 use App\Models\Produk as ProdukModel;
 use App\Models\Tarif;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
-class Produk extends UserBaseController
+class Jasa extends UserBaseController
 {
-    protected $is_role;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->middleware(function ($request, $next) {
-            $this->is_role = false;
-            $role = ['bendahara', 'akuntansi'];
-            if (in_array(Auth::user()->role->nama_role, $role)) {
-                $this->is_role = true;
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
-        $is_role = $this->is_role;
         $breadcrumb = ['Stok Produk'];
-        $list_produk = ProdukModel::with('tarif:harga,produk_id')->latest()->get();
-        return view('pages/produk/list', compact('is_role', 'breadcrumb', 'list_produk'));
+        $list_produk = ProdukModel::with('tarif')->orderByDesc('id')->get();
+        return view('pages/produk/list', compact('breadcrumb', 'list_produk'));
     }
 
     public function add()
@@ -44,7 +27,7 @@ class Produk extends UserBaseController
 
     public function edit($id = null)
     {
-        $produk = ProdukModel::with('tarif:harga,produk_id')->find(decode($id));
+        $produk = ProdukModel::with('tarif')->find(decode($id));
         $breadcrumb = ['produk' => 'Stok Produk', 'Form Produk']; //url => title
         $form_title = 'Edit Produk';
         return view('pages/produk/form', compact('breadcrumb', 'form_title', 'produk'));
@@ -74,9 +57,7 @@ class Produk extends UserBaseController
                 $produk_id = decode($request->produk_id);
             } else {
                 $produk_id = null;
-                $kode_produk = auto_code('kode_produk', 'produk', 'PD', 4);
-                $data_produk['kode_produk'] = $kode_produk;
-                $data_produk['barcode'] = 0 . date('ymd') . $kode_produk . random_int(0, 9);
+                $data_produk['kode_produk'] = auto_code('kode_produk', 'produk', 'BR', 4);
             }
 
             $exist_id = ['id' => $produk_id];
@@ -88,7 +69,7 @@ class Produk extends UserBaseController
             }
 
             $data_tarif = [
-                // 'unit_usaha_id' => 1,
+                'unit_usaha_id' => 1,
                 'nama_tarif'    => $request->nama_produk,
                 'harga'         => rm_nominal($request->harga),
                 'satuan_tarif'  => $request->satuan_produk,

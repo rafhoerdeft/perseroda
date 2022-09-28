@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth as FacadesAuth;
 
 class Auth
 {
@@ -16,14 +17,24 @@ class Auth
      */
     public function handle(Request $request, Closure $next, $roles)
     {
-        $log = $request->session()->get('log');
-        $role = explode(';', $roles);
-        if (!in_array($log, $role)) {
+        if (FacadesAuth::check()) {
+            $log = $request->user()->role->nama_role;
+            $role = explode(';', $roles);
+            if (!in_array($log, $role)) {
+                // abort(401);
 ?>
+                <script>
+                    alert("Silahkan login dahulu sebagai <?= ucwords(implode('/', $role)) ?>.");
+                    // document.location = window.history.back();
+                    document.location = "<?= url('/logout') ?>";
+                </script>
+            <?php
+            }
+        } else {
+            ?>
             <script>
-                alert('Silahkan login dahulu!');
-                // document.location = window.history.back();
-                document.location = "<?= url('/') ?>";
+                alert("Silahkan login dahulu!");
+                document.location = "<?= url('/logout') ?>";
             </script>
 <?php
         }

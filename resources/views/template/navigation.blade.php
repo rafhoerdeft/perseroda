@@ -19,23 +19,47 @@
                     @if ($nav['child'] != null)
                         <ul>
                             @foreach ($nav['child'] as $child)
-                                <li>
-                                    <a href="{{ $child['url'] }}"
-                                        class="{{ $child['child'] != null ? 'has-arrow' : '' }}">
-                                        <i class="bx bx-right-arrow-alt"></i> {{ $child['title'] }}
-                                    </a>
-                                    @if ($child['child'] != null)
-                                        <ul>
-                                            @foreach ($child['child'] as $item)
-                                                <li>
-                                                    <a class="" href="{{ $item['url'] }}">
-                                                        <i class="bx bx-right-arrow-alt"></i> {{ $item['title'] }}
-                                                    </a>
-                                                </li>
-                                            @endforeach
-                                        </ul>
+                                @if (isset($child['role']))
+                                    @if (in_array(Auth::user()->role->nama_role, $child['role']))
+                                        <li>
+                                            <a href="{{ $child['url'] }}"
+                                                class="{{ $child['child'] != null ? 'has-arrow' : '' }}">
+                                                <i class="bx bx-right-arrow-alt"></i> {{ $child['title'] }}
+                                            </a>
+                                            @if ($child['child'] != null)
+                                                <ul>
+                                                    @foreach ($child['child'] as $item)
+                                                        <li>
+                                                            <a class="" href="{{ $item['url'] }}">
+                                                                <i class="bx bx-right-arrow-alt"></i>
+                                                                {{ $item['title'] }}
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                        </li>
                                     @endif
-                                </li>
+                                @else
+                                    <li>
+                                        <a href="{{ $child['url'] }}"
+                                            class="{{ $child['child'] != null ? 'has-arrow' : '' }}">
+                                            <i class="bx bx-right-arrow-alt"></i> {{ $child['title'] }}
+                                        </a>
+                                        @if ($child['child'] != null)
+                                            <ul>
+                                                @foreach ($child['child'] as $item)
+                                                    <li>
+                                                        <a class="" href="{{ $item['url'] }}">
+                                                            <i class="bx bx-right-arrow-alt"></i>
+                                                            {{ $item['title'] }}
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                    </li>
+                                @endif
                             @endforeach
                         </ul>
                     @endif
