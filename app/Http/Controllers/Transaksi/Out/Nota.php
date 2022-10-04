@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Transaksi\Out;
 use App\Http\Controllers\UserBaseController;
 use App\Models\Nota as ModelsNota;
 use App\Models\Rekanan;
-use App\Models\RincianNota;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;

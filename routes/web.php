@@ -93,6 +93,13 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
                 Route::post('statusbayar', 'Nota@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara');
                 Route::post('jenisbayar', 'Nota@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara');
             });
+            Route::middleware('preventBackHistory')->prefix('rincian')->name('rincian.')->group(function () {
+                Route::get('list/{id?}', 'Rincian@index')->name('list')->middleware('auth.user:akuntansi;bendahara');
+                Route::post('save', 'Rincian@save')->name('save')->middleware('auth.user:akuntansi;bendahara');
+                Route::get('produk', 'Rincian@getProduk')->name('produk')->middleware('auth.user:akuntansi;bendahara');
+                Route::post('delete', 'Rincian@delete')->name('delete')->middleware('auth.user:akuntansi;bendahara');
+                Route::post('delete/all', 'Rincian@deleteAll')->name('delete.all')->middleware('auth.user:akuntansi;bendahara');
+            });
         });
     });
 });

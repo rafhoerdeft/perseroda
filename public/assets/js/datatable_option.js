@@ -1,4 +1,4 @@
-function createDataTable(name_id, column_no_order = [], search = true) {
+function createDataTable(name_id, column_no_order = [0,1,2], search = true) {
     $('#' + name_id).dataTable({
         "dom": '<"row"<"col-md-6"l><"col-md-6"f>><"table-responsive"t><"row"<"col-md-6"i><"col-md-6"p>>',
         "searching": search,

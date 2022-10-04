@@ -37,7 +37,7 @@
         }
 
         .font-sm {
-            font-size: 11pt !important;
+            font-size: 9pt !important;
         }
 
         .row_check {

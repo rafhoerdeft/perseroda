@@ -31,9 +31,9 @@
             <th>Aksi</th>
         @endif
         <th>Nomor Nota</th>
-        <th>Tanggal Nota</th>
+        <th>Tgl Nota</th>
         <th>Rekanan</th>
-        <th>Total Harga (Rp)</th>
+        <th>Total (Rp)</th>
         <th>Status Bayar</th>
         <th>Jenis Bayar</th>
         <th>Keterangan</th>
@@ -63,7 +63,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <a href="{{ route($main_route . 'add') }}" class="btn btn-primary w-100">
-                                    <i class="bx bx-list-plus"></i>Input Order
+                                    <i class="bx bx-list-plus"></i>Input Nota
                                 </a>
                             </div>
                         </div>
@@ -115,7 +115,8 @@
                                     </td>
                                 @endif
                                 <td>
-                                    <a href="" class="btn btn-primary btn-sm" title="Tambah Rincian"><i
+                                    <a href="{{ route($main_route . 'rincian.list', ['id' => encode($row->id)]) }}"
+                                        class="btn btn-primary btn-sm" title="Tambah Rincian"><i
                                             class="lni lni-circle-plus me-0 text-white font-sm align-baseline"></i>
                                     </a>
                                     @if ($is_role)
@@ -131,17 +132,75 @@
                                     @endif
                                 </td>
                                 <td>{{ $row->no_nota }}</td>
-                                <td>{{ format_date($row->tgl_nota) }}</td>
+                                <td align="center">{{ date('d/m/Y', strtotime($row->tgl_nota)) }}</td>
                                 <td>{{ $row->rekanan->nama }}</td>
                                 <td align="right">{{ isset($row->harga_total) ? nominal($row->harga_total) : '' }}
                                 </td>
                                 <td align="center">
+                                    @php
+                                        $bg = 'danger';
+                                        if ($row->status_bayar == 1) {
+                                            $bg = 'success';
+                                        }
+                                    @endphp
                                     <span
                                         class="badge rounded-pill bg-{{ $row->status_bayar == 0 ? 'danger' : 'success' }} w-75">
                                         {{ $status_bayar[$row->status_bayar] }}</span>
+                                    @if ($is_role && $row->status_bayar == 0)
+                                        <div class='mt-1'>
+                                            <button type='button' class='btn btn-sm btn-warning text-sm-b p-1 w-75'
+                                                data-post='{{ json_encode(['id' => encode($row->id)]) }}'
+                                                data-link='{{ url('transaksi/out/nota/change/statusbayar') }}'
+                                                data-table='list_data' data-title='Ubah status bayar ({{ $row->no_nota }})'
+                                                data-text='Status bayar akan diubah menjadi LUNAS?'
+                                                onclick='confirmDialog(this)' title='Ubah Status Bayar'>Ubah
+                                                Status</button>
+                                        </div>
+                                    @endif
+
                                 </td>
-                                <td align="center"><span
-                                        class="badge bg-{{ $row->jenis_bayar == 'bank' ? 'info' : 'primary' }} w-75">{{ text_uc($row->jenis_bayar) }}</span>
+                                <td align="center">
+                                    @php
+                                        $bg = 'primary';
+                                        if ($row->jenis_bayar == 'bank') {
+                                            $bg = 'info';
+                                        }
+                                    @endphp
+                                    @if ($is_role)
+                                        <div class='btn-group w-75'>
+                                            <button type='button'
+                                                class='btn btn-sm btn-{{ $bg }} text-white text-sm-b p-0'
+                                                title='{{ text_uc($row->jenis_bayar) }}'>{{ text_uc($row->jenis_bayar) }}</button>
+                                            <button type='button'
+                                                class='btn btn-sm btn-{{ $bg }} text-white p-0 split-bg-{{ $bg }} dropdown-toggle dropdown-toggle-split'
+                                                data-bs-toggle='dropdown' aria-expanded='false' title='Ubah Jenis Bayar'>
+                                            </button>
+                                            <div class='dropdown-menu dropdown-menu-right dropdown-menu-lg-end'
+                                                style='margin: 0px;'>
+                                                <a class='dropdown-item {{ $row->jenis_bayar == 'bank' ? 'active bg-info' : '' }}'
+                                                    href='javascript:void(0);'
+                                                    data-post='{{ json_encode(['id' => encode($row->id), 'jenis' => 'bank']) }}'
+                                                    data-link='{{ url('transaksi/out/nota/change/jenisbayar') }}'
+                                                    data-table='list_data'
+                                                    data-title='Ubah jenis bayar ({{ $row->no_nota }})'
+                                                    data-text='Jenis bayar akan diubah menjadi Bank?'
+                                                    onclick='{{ $row->jenis_bayar == 'bank' ? '' : 'confirmDialog(this)' }}'>Bank</a>
+
+                                                <a class='dropdown-item {{ $row->jenis_bayar == 'tunai' ? 'active' : '' }}'
+                                                    href='javascript:void(0);'
+                                                    data-post='{{ json_encode(['id' => encode($row->id), 'jenis' => 'tunai']) }}'
+                                                    data-link='{{ url('transaksi/out/nota/change/jenisbayar') }}'
+                                                    data-table='list_data'
+                                                    data-title='Ubah jenis bayar ({{ $row->no_nota }})'
+                                                    data-text='Jenis bayar akan diubah menjadi Tunai?'
+                                                    onclick='{{ $row->jenis_bayar == 'tunai' ? '' : 'confirmDialog(this)' }}'>Tunai</a>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span
+                                            class="badge bg-{{ $bg }} w-75">{{ text_uc($row->jenis_bayar) }}</span>
+                                    @endif
+
                                 </td>
                                 <td>{{ $row->ket_nota }}</td>
                             </tr>
@@ -183,6 +242,7 @@
     <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset_js('datatable_option.js') }}"></script>
+    <script src="{{ asset_js('confirm_dialog.js') }}"></script>
 @endpush
 
 @push('js_script')
