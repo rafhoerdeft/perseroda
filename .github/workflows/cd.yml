@@ -13,13 +13,17 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Crot dalem
-        uses: appleboy/ssh-action@master
+        # uses: appleboy/ssh-action@master
+        uses: matheusvanzan/sshpass-action@v2
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # host: ${{ secrets.SSH_HOST }}
+          # username: ${{ secrets.SSH_USERNAME }}
+          # key: ${{ secrets.SSH_PRIVATE_KEY }}
           # password: ${{ secrets.SSH_PASSWORD }}
-          port: ${{ secrets.SSH_PORT }}
+          host: ${{ secrets.SSH_HOST }}
+          user: ${{ secrets.SSH_USERNAME }}
+          pass: ${{ secrets.SSH_PASSWORD }}
+          # port: ${{ secrets.SSH_PORT }}
           script: |
             cd /home/pdau
             ls -l
