@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Transaksi\Out;
 
 use App\Http\Controllers\UserBaseController;
 use App\Models\Nota as ModelsNota;
+use App\Models\Produk;
 use App\Models\Rekanan;
+use App\Models\RincianNota;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -186,6 +188,7 @@ class Nota extends UserBaseController
 
     public function delete(Request $request)
     {
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), ['id' => 'required']);
 
@@ -193,14 +196,74 @@ class Nota extends UserBaseController
                 throw new \Exception($validator->errors());
             }
 
-            $id = $request->id;
-            $deleted = ModelsNota::find(decode($id))->delete();
+            $id = decode($request->id);
+            $deleted = ModelsNota::find($id)->delete();
             if (!$deleted) {
                 throw new \Exception('Gagal hapus data!');
             }
 
+            $rincian = RincianNota::where('nota_id', $id);
+            foreach ($rincian->get() as $val) {
+                $produk_id = $val->produk_id;
+                $jml_produk = $val->jml_produk;
+                Produk::find($produk_id)->decrement('stok_produk', $jml_produk);
+            }
+
+            // if (!$rincian->delete()) {
+            //     throw new \Exception('Gagal hapus rincian nota!');
+            // }
+
+            DB::commit();
             $res = ['success' => true];
         } catch (\Exception $e) {
+            DB::rollBack();
+            $res = ['success' => false, 'alert' => $e->getMessage()];
+        }
+
+        return json_encode($res);
+    }
+
+    public function deleteAll(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $validator = Validator::make($request->all(), ['dataid' => 'required', 'table' => 'required']);
+
+            if ($validator->fails()) {
+                throw new \Exception($validator->errors());
+            }
+
+            $dataid = explode(";", $request->dataid);
+            $table = $request->table;
+
+            $query = DB::table($table)->whereIn('id', $dataid);
+
+            if ($request->soft === 'true') {
+                $deleted = $query->update(['deleted_at' => now()]);
+            } else {
+                $deleted = $query->delete();
+            }
+
+            if (!$deleted) {
+                throw new \Exception('Gagal hapus data!');
+            }
+
+            $rincian = RincianNota::whereIn('nota_id', $dataid);
+
+            foreach ($rincian->get() as $val) {
+                $produk_id = $val->produk_id;
+                $jml_produk = $val->jml_produk;
+                Produk::find($produk_id)->decrement('stok_produk', $jml_produk);
+            }
+
+            // if (!$rincian->delete()) {
+            //     throw new \Exception('Gagal hapus rincian nota!');
+            // }
+
+            DB::commit();
+            $res = ['success' => true];
+        } catch (\Exception $e) {
+            DB::rollBack();
             $res = ['success' => false, 'alert' => $e->getMessage()];
         }
 

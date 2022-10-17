@@ -26,7 +26,7 @@
     {!! show_alert() !!}
     <div class="row g-2">
         {{-- Form Input  --}}
-        <div class="col-md-4">
+        <div class="col-lg-4">
             <div class="card">
                 <div class="card-body">
                     <div class="page-breadcrumb d-sm-flex align-items-center">
@@ -89,7 +89,7 @@
                         </div>
 
                         <div class="col-md-12 mt-0">
-                            <div class="row">
+                            <div class="row g-3">
                                 <div class="col-md-6">
                                     <button type="button" class="btn btn-warning w-100" onclick="resetForm(this)">
                                         <i class="bx bx-reset"></i> Reset
@@ -108,7 +108,7 @@
         </div>
 
         {{-- List table  --}}
-        <div class="col-md-8">
+        <div class="col-lg-8">
             <div class="card">
                 <div class="card-body">
                     {{-- <h5 class="card-title">List Data</h5> --}}
@@ -208,13 +208,14 @@
 @push('css_style')
     <style>
         .form-check {
-            padding-left: 2rem;
+            /* padding-left: 2rem; */
             margin: 0px;
         }
 
         .form-check-input {
             width: 19px;
             height: 19px;
+            float: none !important;
         }
     </style>
 @endpush

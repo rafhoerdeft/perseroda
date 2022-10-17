@@ -160,13 +160,14 @@
 @push('css_style')
     <style>
         .form-check {
-            padding-left: 2rem;
+            /* padding-left: 2rem; */
             margin: 0px;
         }
 
         .form-check-input {
             width: 19px;
             height: 19px;
+            float: none !important;
         }
     </style>
 @endpush
@@ -225,23 +226,6 @@
                 class: "text-end"
             }
         ];
-
-        // Active checkbox according to role
-        if ("{{ $is_role }}") {
-            var check_box = {
-                data: 'check_all',
-                class: "text-center",
-                orderable: false,
-                searchable: false
-            };
-            columns.splice(1, 0, check_box); // insert array in specific position At Index 1
-
-            num_cols = 9;
-            remove_cols = 2;
-            createDataTableServerSide('list_data', url, columns, info, msg);
-        } else {
-            createDataTableServerSide('list_data', url, columns, info, msg, true, num_cols, remove_cols);
-        }
     </script>
 
     {{-- Select2 config --}}
@@ -394,6 +378,21 @@
                 deleteAllData(data);
             }
         </script>
+
+        <script>
+            // Active checkbox according to role
+            var check_box = {
+                data: 'check_all',
+                class: "text-center",
+                orderable: false,
+                searchable: false
+            };
+            columns.splice(1, 0, check_box); // insert array in specific position At Index 1
+
+            num_cols = 9;
+            remove_cols = 2;
+            createDataTableServerSide('list_data', url, columns, info, msg);
+        </script>
     @endpush
 @else
     @push('js_script')
@@ -401,6 +400,10 @@
             function checkChangePage() {
                 return true;
             }
+        </script>
+
+        <script>
+            createDataTableServerSide('list_data', url, columns, info, msg, true, num_cols, remove_cols);
         </script>
     @endpush
 @endif

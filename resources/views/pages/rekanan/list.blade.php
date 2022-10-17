@@ -1,118 +1,5 @@
 @extends('template.master')
 
-{{-- @section('button-top')
-    <div class="row">
-        <div class="col-md-6">
-            <input type="hidden" name="delete_all" id="delete_all">
-            <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100 mb-1" type="button"
-                onclick="deleteAll()" disabled>
-                <i class="bx bx-trash"></i>Hapus Data
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
-            </button>
-        </div>
-        <div class="col-md-6">
-            <a href="{{ route('rekanan.add') }}" class="btn btn-primary w-100">
-                <i class="bx bx-list-plus"></i>Tambah Data
-            </a>
-        </div>
-    </div>
-@endsection --}}
-
-@section('column-table')
-    <tr>
-        <th>No</th>
-        @if ($is_role)
-            <th>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="plh_brg_all"
-                        id="check_all" value="0">
-                </div>
-            </th>
-            <th>Aksi</th>
-        @endif
-        <th>Nama Toko</th>
-        <th>Alamat Toko</th>
-    </tr>
-@endsection
-
-@section('content')
-    {{-- <h6 class="mb-0 text-uppercase">List Data</h6>
-    <hr /> --}}
-    {!! show_alert() !!}
-    <div class="card">
-        <div class="card-body">
-            {{-- <h5 class="card-title">List Data</h5> --}}
-            <div class="page-breadcrumb d-sm-flex align-items-center">
-                <h5 class="card-title">List Data</h5>
-                @if ($is_role)
-                    <div class="ms-auto">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <input type="hidden" name="delete_all" id="delete_all">
-                                <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100 mb-1"
-                                    type="button" onclick="deleteAll()" disabled>
-                                    <i class="bx bx-trash"></i>Hapus Data
-                                    <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
-                                </button>
-                            </div>
-                            <div class="col-sm-6">
-                                <a href="{{ route('rekanan.add') }}" class="btn btn-primary w-100">
-                                    <i class="bx bx-list-plus"></i>Tambah Data
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            <hr />
-
-            <div class="table-responsive">
-                <table id="list_data" class="table table-striped table-bordered table-hover" style="width:100%">
-                    <thead class="text-center">
-                        @yield('column-table')
-                    </thead>
-                    <tbody>
-                        @php
-                            $no = 1;
-                        @endphp
-                        @foreach ($list_data as $row)
-                            <tr>
-                                <td align="center">{{ $no++ }}</td>
-                                @if ($is_role)
-                                    <td>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)"
-                                                name="plh_brg[]" id="plh_brg_{{ $row->id }}"
-                                                value="{{ $row->id }}">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('rekanan.edit', ['id' => encode($row->id)]) }}"
-                                            class="btn btn-info btn-sm" title="Update Data">
-                                            <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
-                                        </a>
-                                        <button type="button" onclick="deleteData(this)" data-id="{{ encode($row->id) }}"
-                                            data-link="{{ url('rekanan/delete') }}" class="btn btn-sm btn-danger"
-                                            title="Hapus Data">
-                                            <i class="lni lni-trash me-0 font-sm"></i>
-                                        </button>
-                                    </td>
-                                @endif
-                                <td>{{ $row->nama }}</td>
-                                <td>{{ $row->alamat }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot class="text-center">
-                        @yield('column-table')
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-    </div>
-@endsection
-
 @push('css_plugin')
     <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
 @endpush
@@ -120,13 +7,14 @@
 @push('css_style')
     <style>
         .form-check {
-            padding-left: 2rem;
+            /* padding-left: 2rem; */
             margin: 0px;
         }
 
         .form-check-input {
             width: 19px;
             height: 19px;
+            float: none !important;
         }
     </style>
 @endpush
@@ -147,9 +35,110 @@
         //     cekChangePage();
         // });
     </script>
+
+    <script>
+        function editData(data) {
+            var rekanan_id = $(data).data().id;
+            var nama = $(data).data().nama;
+            var alamat = $(data).data().alamat;
+
+            $('form #rekanan_id').val(rekanan_id);
+            $('form #nama').val(nama);
+            $('form #alamat').val(alamat);
+        }
+    </script>
 @endpush
 
 @if ($is_role)
+    @section('role-button')
+        <div class="ms-auto">
+            <div class="row">
+                <div class="col-sm-12">
+                    <input type="hidden" name="delete_all" id="delete_all">
+                    <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100" type="button"
+                        onclick="deleteAll()" disabled>
+                        <i class="bx bx-trash"></i>Hapus Data
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
+                    </button>
+                </div>
+                {{-- <div class="col-sm-6">
+                    <a href="{{ route('rekanan.add') }}" class="btn btn-primary w-100">
+                        <i class="bx bx-list-plus"></i>Tambah Data
+                    </a>
+                </div> --}}
+            </div>
+        </div>
+    @endsection
+
+    @section('role-column')
+        <th>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="plh_brg_all"
+                    id="check_all" value="0">
+            </div>
+        </th>
+        <th>Aksi</th>
+    @endsection
+
+    @section('role-form')
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="page-breadcrumb d-sm-flex align-items-center">
+                        <h5 class="card-title">Form Input</h5>
+                    </div>
+
+                    <hr>
+                    <form class="row g-3" method="POST" action="{{ url('rekanan/save') }}">
+                        @csrf
+
+                        <input type="hidden" name="rekanan_id" id="rekanan_id">
+
+                        <div class="col-md-12">
+                            <label for="nama" class="form-label">Nama Rekanan</label>
+                            <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama"
+                                name="nama">
+                            @error('nama')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-12">
+                            <label for="alamat" class="form-label">Alamat Rekanan</label>
+                            <textarea name="alamat" id="alamat" class="form-control @error('alamat') is-invalid @enderror" rows="2"></textarea>
+                            @error('alamat')
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-12 mt-0">
+                            <hr>
+                        </div>
+
+                        <div class="col-md-12 mt-0">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <button type="reset" class="btn btn-warning w-100">
+                                        <i class="bx bx-reset"></i> Reset
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bx bx-save"></i> Simpan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endsection
+
     @push('css_plugin')
         <link href="{{ asset_ext . 'sweetalert/css/sweetalert.css' }}" rel="stylesheet" />
     @endpush
@@ -161,7 +150,7 @@
 
     @push('js_script')
         <script>
-            createDataTableExport('list_data', info, msg, 9);
+            createDataTableExport('list_data', info, msg, 5);
         </script>
 
         <script>
@@ -289,7 +278,7 @@
 @else
     @push('js_script')
         <script>
-            createDataTableExport('list_data', info, msg, 7, [0], 0);
+            createDataTableExport('list_data', info, msg, 3, [0], 0);
         </script>
 
         <script>
@@ -299,3 +288,86 @@
         </script>
     @endpush
 @endif
+
+@section('column-table')
+    <tr>
+        <th>No</th>
+        @yield('role-column')
+        <th>Nama Toko</th>
+        <th>Alamat Toko</th>
+    </tr>
+@endsection
+
+@section('content')
+    {{-- <h6 class="mb-0 text-uppercase">List Data</h6>
+    <hr /> --}}
+    {!! show_alert() !!}
+    <div class="row g-2">
+        @yield('role-form')
+
+        <div class="{{ $is_role ? 'col-lg-8' : 'col-lg-12' }}">
+            <div class="card">
+                <div class="card-body">
+                    {{-- <h5 class="card-title">List Data</h5> --}}
+                    <div class="page-breadcrumb d-sm-flex align-items-center">
+                        <h5 class="card-title">List Data</h5>
+                        @yield('role-button')
+                    </div>
+                    <hr />
+
+                    <div class="table-responsive">
+                        <table id="list_data" class="table table-striped table-bordered table-hover font-sm"
+                            style="width:100%">
+                            <thead class="text-center">
+                                @yield('column-table')
+                            </thead>
+                            <tbody>
+                                @php
+                                    $no = 1;
+                                @endphp
+                                @foreach ($list_data as $row)
+                                    <tr>
+                                        <td>{{ $no++ }}</td>
+                                        @if ($is_role)
+                                            <td>
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input"
+                                                        onchange="onCheckChange(this)" name="plh_brg[]"
+                                                        id="plh_brg_{{ $row->id }}" value="{{ $row->id }}">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {{-- <a href="{{ route('rekanan.edit', ['id' => encode($row->id)]) }}"
+                                                    class="btn btn-info btn-sm" title="Update Data">
+                                                    <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
+                                                </a> --}}
+                                                <button type="button" onclick="editData(this)"
+                                                    data-id="{{ encode($row->id) }}" data-nama="{{ $row->nama }}"
+                                                    data-alamat="{{ $row->alamat }}" class="btn btn-info btn-sm"
+                                                    title="Update Data">
+                                                    <i
+                                                        class="lni lni-pencil-alt me-0 align-baseline text-white font-sm"></i>
+                                                </button>
+                                                <button type="button" onclick="deleteData(this)"
+                                                    data-id="{{ encode($row->id) }}"
+                                                    data-link="{{ url('rekanan/delete') }}" class="btn btn-sm btn-danger"
+                                                    title="Hapus Data">
+                                                    <i class="lni lni-trash me-0 align-baseline font-sm"></i>
+                                                </button>
+                                            </td>
+                                        @endif
+                                        <td>{{ $row->nama }}</td>
+                                        <td>{{ $row->alamat }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot class="text-center">
+                                @yield('column-table')
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

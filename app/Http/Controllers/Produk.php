@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Produk as ProdukModel;
 use App\Models\Tarif;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -20,7 +19,7 @@ class Produk extends UserBaseController
         $this->middleware(function ($request, $next) {
             $this->is_role = false;
             $role = ['bendahara', 'akuntansi'];
-            if (in_array(Auth::user()->role->nama_role, $role)) {
+            if (in_array(auth()->user()->role->nama_role, $role)) {
                 $this->is_role = true;
             }
             return $next($request);

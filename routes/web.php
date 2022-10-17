@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Order\Perdagangan;
 use App\Http\Livewire\Base;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,7 @@ Route::prefix('/')->name('auth.')->namespace('App\Http\Controllers')->group(func
 });
 
 Route::middleware(['preventBackHistory', 'auth.user:akuntansi;bendahara;kasir'])->get('dashboard', [App\Http\Controllers\Dashboard::class, 'index'])->name('dash');
+// Route::middleware(['preventBackHistory', 'auth.user:main|akuntansi-bendahara;second|kasir'])->get('dashboard', [App\Http\Controllers\Dashboard::class, 'index'])->name('dash');
 
 Route::middleware('preventBackHistory')->prefix('produk')->name('produk.')->namespace('App\Http\Controllers')->group(function () {
     Route::get('', 'Produk@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');
@@ -55,6 +57,7 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
                 Route::post('statusbayar', 'Perdagangan@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
                 Route::post('jenisbayar', 'Perdagangan@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
             });
+            Route::get('print/{id?}', 'Perdagangan@printNota')->name('print')->middleware('auth.user:kasir');
         });
         Route::middleware('preventBackHistory')->prefix('percetakan')->name('percetakan.')->group(function () {
             Route::get('', 'Percetakan@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');
@@ -109,3 +112,8 @@ Route::middleware('preventBackHistory')->prefix('all')->name('all.')->namespace(
 });
 
 Route::get('live', Base::class)->name('base');
+
+// STORAGE FILE ROUTE
+Route::prefix('storage')->name('storage.')->namespace('App\Http\Controllers')->group(function () {
+    Route::get('image/{path_file?}', 'Storage@image')->name('image')->middleware('auth.user:akuntansi;bendahara;kasir');
+});

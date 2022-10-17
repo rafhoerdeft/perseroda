@@ -42,9 +42,9 @@
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+    @else
+        {!! show_alert() !!}
     @endif
-
-    {!! show_alert() !!}
 
     <div class="card border-top border-0 border-4 border-primary">
         <div class="card-body p-5">
@@ -138,7 +138,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <input type="number" min="1" max="1000" class="form-control text-center"
+                    <input type="number" min="1" max="9999" class="form-control text-center"
                         id="jml_produk" name="jml_produk" value="1" placeholder="Jumlah"
                         onblur="checkNumber(this, event)" onkeypress="return numberInput(event);"
                         onkeyup="checkNumber(this, event)">
@@ -174,7 +174,8 @@
                                         <td>{{ $val->tarif->produk->nama_produk }}</td>
                                         <td align="center">{{ $val->tarif->produk->satuan_produk }}</td>
                                         <td align="right">{{ nominal($val->tarif->harga) }}</td>
-                                        <td align="right"><input type="number" min="1" max="1000"
+                                        <td align="right" width="125">
+                                            <input type="number" min="1" max="9999"
                                                 class="form-control form-control-sm text-center"
                                                 id="{{ $val->tarif->produk->id }}'"
                                                 name="jml_produk_{{ $val->tarif->produk->id }}"
@@ -233,16 +234,21 @@
                     <hr>
                 </div>
 
-                <div class="offset-md-6 col-md-6">
+                <div class="offset-md-4 col-md-8">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <button type="reset" class="btn btn-warning w-100">
                                 <i class="bx bx-reset"></i> Reset
                             </button>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <button type="submit" class="btn btn-success w-100">
                                 <i class="bx bx-save"></i> Simpan
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="button" class="btn btn-primary w-100" onclick="saveData(this)">
+                                <i class="bx bx-printer"></i> Simpan & Print
                             </button>
                         </div>
                     </div>
@@ -253,6 +259,14 @@
     </div>
 @endsection
 
+@push('loading')
+    <div class="loading-process" id="loading-show">
+        <div style="top: 40%; position: relative; z-index: 30">
+            @include('template.loading')
+        </div>
+    </div>
+@endpush
+
 @push('css_plugin')
     <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
     {{-- Datepicker --}}
@@ -261,6 +275,8 @@
     {{-- Select 2 --}}
     <link href="{{ asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/plugins/select2/css/select2-bootstrap4.css') }}" rel="stylesheet" />
+    {{-- Sweet Alert --}}
+    <link href="{{ asset_ext('sweetalert2/css/sweetalert2.min.css') }}" rel="stylesheet" />
 @endpush
 
 @push('css_style')
@@ -277,12 +293,85 @@
     <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset_ext('bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+    <script src="{{ asset_ext('sweetalert2/js/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset_js('number_input.js') }}"></script>
     <script src="{{ asset_js('datatable_option.js') }}"></script>
     <script src="{{ asset_js('datepicker_conf.js') }}"></script>
 @endpush
 
 @push('js_script')
+    <script>
+        function saveData(data) {
+
+            $("#loading-show").fadeIn("slow");
+
+            var form = $(data).closest('form')[0];
+            var url = form.action;
+            var formData = new FormData(form); //membuat form data baru
+            formData.append('print', true);
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function(data) {
+                    $("#loading-show").fadeIn("slow").delay(10).fadeOut('slow');
+
+                    if (data.success) {
+                        var print_dom = $('<div id="print-dom"></div>');
+                        var print_frame = $(
+                            '<iframe id="print-content" src="' + data.print +
+                            '" scrolling="no" width="100%" border="0" frameborder="0" name="print-content" />'
+                        );
+
+                        print_dom
+                            .hide()
+                            .append(print_frame)
+                            .appendTo('body');
+
+                        swal.fire({
+                            title: "Sukses!",
+                            text: "Nota akan segera diprint!",
+                            type: "success",
+                            icon: 'success',
+                            timer: 2000
+                        }).then(function() {
+                            // location.reload();
+                            location.href = data.url;
+                        });
+                    } else {
+                        swal.fire({
+                            title: "Gagal!",
+                            html: data.alert,
+                            type: "error",
+                            icon: "error",
+                            // timer: 2000
+                        });
+                    }
+                },
+                error: function(data) {
+                    $("#loading-show").fadeIn("slow").delay(10).fadeOut('slow');
+
+                    swal.fire({
+                        title: "Gagal! " + '(Error ' + data.responseJSON.code + ')',
+                        text: 'Error saat kirim data. ' + data
+                            .responseJSON.title + '. ' + data
+                            .responseJSON.message,
+                        type: "error",
+                        icon: "error",
+                        // timer: 2000
+                    }).then(function() {
+                        clearInterval(tokenTimer);
+                        $('#' + form.id)[0].reset();
+                    });
+                }
+            });
+        }
+    </script>
+
     {{-- Datatable config --}}
     <script>
         var dataTable;
@@ -387,9 +476,11 @@
                     if (data.response) {
                         try {
                             var stok_produk = parseInt(data.result.stok_produk);
-                            if (jml > stok_produk) {
-                                throw 'Stok produk tidak cukup';
-                            }
+
+                            // if (jml > stok_produk) {
+                            //     $('#jml_produk').val(stok_produk);
+                            //     throw 'Stok produk tidak cukup';
+                            // }
 
                             // Cek apakah edit data atau tambah data order baru
                             // untuk mengkalkulasikan stok produk 
@@ -437,7 +528,7 @@
                 '"class = "btn btn-sm btn-danger" title = "Hapus Data"> <i class = "lni lni-trash me-0 font-sm"> </i> </button>';
 
             var input_jml =
-                '<input type="number" min="1" max="1000" class="form-control form-control-sm text-center" id="' + data.id +
+                '<input type="number" min="1" max="9999" class="form-control form-control-sm text-center" id="' + data.id +
                 '" name="jml_produk_' + data.id + '" value="' + jml +
                 '" data-jml="' + jml +
                 '" data-harga="' + data.tarif.harga +
@@ -498,10 +589,12 @@
                 var rincian_produk = $('#rincian_produk').val();
 
                 var key_exist = false;
+                var tot_ambil = 0;
                 if (rincian_produk != '') {
                     var obj_rincian = JSON.parse(rincian_produk);
                     if (tarif_id in obj_rincian) {
                         key_exist = true;
+                        tot_ambil += obj_rincian[tarif_id]; // total yg sudah diambil
                         if (add_prev_val) {
                             jml += obj_rincian[tarif_id];
                         }
@@ -515,7 +608,15 @@
                 }
                 arr_rincian[tarif_id] = jml;
 
-                if (jml > stok) throw "Stok produk tidak cukup";
+                if (jml > stok) {
+                    let sisa_stok = stok - tot_ambil;
+                    $('#jml_produk').val(sisa_stok);
+                    if (sisa_stok == 0) {
+                        throw "Stok produk sudah habis";
+                    } else {
+                        throw "Stok produk tidak cukup";
+                    }
+                }
 
                 $('#rincian_produk').val(JSON.stringify(arr_rincian));
                 var result = {

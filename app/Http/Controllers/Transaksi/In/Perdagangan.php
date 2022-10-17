@@ -10,7 +10,6 @@ use App\Models\RincianOrder;
 use App\Models\Tarif;
 use App\Models\UnitUsaha;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
@@ -26,7 +25,7 @@ class Perdagangan extends UserBaseController
         $this->middleware(function ($request, $next) {
             $this->is_role = false;
             $role = ['kasir'];
-            if (in_array(Auth::user()->role->nama_role, $role)) {
+            if (in_array(auth()->user()->role->nama_role, $role)) {
                 $this->is_role = true;
             }
             return $next($request);
@@ -82,7 +81,7 @@ class Perdagangan extends UserBaseController
             });
             $list_order->with('rincian_order');
             if ($this->is_role) {
-                $list_order->where('user_id', Auth::user()->id);
+                $list_order->where('user_id', auth()->user()->id);
             }
             $list_order->whereYear('tgl_order', '=', $year);
             $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
@@ -293,7 +292,17 @@ class Perdagangan extends UserBaseController
 
     public function save(Request $request)
     {
-        $request->validate([
+        // $request->validate([
+        //     'tgl_order'  => 'required|date_format:d/m/Y',
+        //     'nama_klien'  => 'string|nullable',
+        //     'jenis_bayar'  => 'required|in:tunai,bank',
+        //     'status_bayar'  => 'required|numeric|between:0,1',
+        //     'rincian_produk'  => 'required|string',
+        //     'total_bayar'  => 'required|integer',
+        //     // 'harga'  => 'required|regex:/^[0-9\.,]+$/|not_in:0'
+        // ]);
+
+        $validator = Validator::make($request->all(), [
             'tgl_order'  => 'required|date_format:d/m/Y',
             'nama_klien'  => 'string|nullable',
             'jenis_bayar'  => 'required|in:tunai,bank',
@@ -305,8 +314,12 @@ class Perdagangan extends UserBaseController
 
         DB::beginTransaction();
         try {
+            if ($validator->fails()) {
+                throw new \Exception(json_encode($validator->errors()->all()));
+            }
+
             $data_order = [
-                'user_id'   => Auth::user()->id,
+                'user_id'   => auth()->user()->id,
                 'nama_klien'  => $request->nama_klien,
                 // 'no_hp_klien'  => $request->no_hp_klien,
                 'tgl_order' => re_date_format($request->tgl_order),
@@ -385,15 +398,32 @@ class Perdagangan extends UserBaseController
 
             DB::commit();
             alert_success('Data order berhasil disimpan.');
+            $response = ['success' => true, 'print' => url('transaksi/in/perdagangan/print/' . encode($order_id))];
+
+            // return $this->printNota($order_id);
         } catch (\Exception $e) {
             DB::rollBack();
-            alert_failed('Data order gagal disimpan.' . $e->getMessage());
+            alert_failed('Data order gagal disimpan.' . json_check($e->getMessage()));
+            $response = ['success' => false, 'alert' => json_check($e->getMessage())];
         }
 
         if ($request->order_id) {
-            return redirect('transaksi/in/perdagangan');
+            $url = 'transaksi/in/perdagangan';
         } else {
-            return redirect('transaksi/in/perdagangan/add');
+            $url = 'transaksi/in/perdagangan/add';
+        }
+
+        if ($request->print) {
+            $response['url'] = url($url);
+            return json_encode($response);
+        } else {
+            if ($response['success']) {
+                return redirect($url);
+            } else {
+                return redirect($url)
+                    ->withErrors($validator)
+                    ->withInput();
+            }
         }
     }
 
@@ -555,5 +585,17 @@ class Perdagangan extends UserBaseController
         }
 
         return json_encode($res);
+    }
+
+    public function printNota($id, $link = null)
+    {
+        $order = Order::find(decode($id));
+
+        $data = compact(
+            'order',
+            'link'
+        );
+
+        return view('pages/transaksi/in/perdagangan/print/kwitansi', $data);
     }
 }

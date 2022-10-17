@@ -392,10 +392,10 @@
             <div class="user-box dropdown border-light-2">
                 <a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#"
                     role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="{{ avatar(Auth::user()->nama_user) }}" class="user-img" alt="user avatar">
+                    <img src="{{ avatar(auth()->user()->nama_user) }}" class="user-img" alt="user avatar">
                     <div class="user-info ps-3">
-                        <p class="user-name mb-0 text-white">{{ limit_name(Auth::user()->nama_user, true) }}</p>
-                        <p class="designattion mb-0">{{ text_uc(Auth::user()->role->nama_role) }}</p>
+                        <p class="user-name mb-0 text-white">{{ limit_name(auth()->user()->nama_user, true) }}</p>
+                        <p class="designattion mb-0">{{ text_uc(auth()->user()->role->nama_role) }}</p>
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">

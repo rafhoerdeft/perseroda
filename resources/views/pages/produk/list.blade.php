@@ -1,127 +1,5 @@
 @extends('template.master')
 
-{{-- @section('button-top')
-    <div class="row">
-        <div class="col-md-6">
-            <input type="hidden" name="delete_all" id="delete_all">
-            <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100 mb-1" type="button"
-                onclick="deleteAll()" disabled>
-                <i class="bx bx-trash"></i>Hapus Data
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
-            </button>
-        </div>
-        <div class="col-md-6">
-            <a href="{{ route('produk.add') }}" class="btn btn-primary w-100">
-                <i class="bx bx-list-plus"></i>Tambah Data
-            </a>
-        </div>
-    </div>
-@endsection --}}
-
-@section('column-table')
-    <tr>
-        <th>No</th>
-        @if ($is_role)
-            <th>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="plh_brg_all"
-                        id="check_all" value="0">
-                </div>
-            </th>
-            <th>Aksi</th>
-        @endif
-        <th>Kode Produk</th>
-        <th>Nama Produk</th>
-        <th>Satuan</th>
-        <th>Harga</th>
-        <th>Stok Produk</th>
-        <th>Stok Minimal</th>
-    </tr>
-@endsection
-
-@section('content')
-    {{-- <h6 class="mb-0 text-uppercase">List Data</h6>
-    <hr /> --}}
-    {!! show_alert() !!}
-    <div class="card">
-        <div class="card-body">
-            {{-- <h5 class="card-title">List Data</h5> --}}
-            <div class="page-breadcrumb d-sm-flex align-items-center">
-                <h5 class="card-title">List Data</h5>
-                @if ($is_role)
-                    <div class="ms-auto">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <input type="hidden" name="delete_all" id="delete_all">
-                                <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100 mb-1"
-                                    type="button" onclick="deleteAll()" disabled>
-                                    <i class="bx bx-trash"></i>Hapus Data
-                                    <span
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
-                                </button>
-                            </div>
-                            <div class="col-sm-6">
-                                <a href="{{ route('produk.add') }}" class="btn btn-primary w-100">
-                                    <i class="bx bx-list-plus"></i>Tambah Data
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            </div>
-            <hr />
-
-            <div class="table-responsive">
-                <table id="list_data" class="table table-striped table-bordered table-hover" style="width:100%">
-                    <thead class="text-center">
-                        @yield('column-table')
-                    </thead>
-                    <tbody>
-                        @php
-                            $no = 1;
-                        @endphp
-                        @foreach ($list_produk as $row)
-                            <tr>
-                                <td align="center">{{ $no++ }}</td>
-                                @if ($is_role)
-                                    <td>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)"
-                                                name="plh_brg[]" id="plh_brg_{{ $row->id }}"
-                                                value="{{ $row->id }}">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('produk.edit', ['id' => encode($row->id)]) }}"
-                                            class="btn btn-info btn-sm" title="Update Data">
-                                            <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
-                                        </a>
-                                        <button type="button" onclick="deleteData(this)" data-id="{{ encode($row->id) }}"
-                                            data-link="{{ url('produk/delete') }}" class="btn btn-sm btn-danger"
-                                            title="Hapus Data">
-                                            <i class="lni lni-trash me-0 font-sm"></i>
-                                        </button>
-                                    </td>
-                                @endif
-                                <td align="center">{{ $row->kode_produk }}</td>
-                                <td>{{ $row->nama_produk }}</td>
-                                <td align="center">{{ $row->satuan_produk }}</td>
-                                <td align="right">{{ isset($row->tarif->harga) ? nominal($row->tarif->harga) : '' }}
-                                </td>
-                                <td align="right">{{ $row->stok_produk }}</td>
-                                <td align="right">{{ $row->stok_minimal }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot class="text-center">
-                        @yield('column-table')
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-    </div>
-@endsection
-
 @push('css_plugin')
     <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
 @endpush
@@ -129,13 +7,14 @@
 @push('css_style')
     <style>
         .form-check {
-            padding-left: 2rem;
+            /* padding-left: 2rem; */
             margin: 0px;
         }
 
         .form-check-input {
             width: 19px;
             height: 19px;
+            float: none !important;
         }
     </style>
 @endpush
@@ -159,6 +38,36 @@
 @endpush
 
 @if ($is_role)
+    @section('role-button')
+        <div class="ms-auto">
+            <div class="row">
+                <div class="col-sm-6">
+                    <input type="hidden" name="delete_all" id="delete_all">
+                    <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100 mb-1" type="button"
+                        onclick="deleteAll()" disabled>
+                        <i class="bx bx-trash"></i>Hapus Data
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
+                    </button>
+                </div>
+                <div class="col-sm-6">
+                    <a href="{{ route('produk.add') }}" class="btn btn-primary w-100">
+                        <i class="bx bx-list-plus"></i>Tambah Data
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endsection
+
+    @section('role-column')
+        <th>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="plh_brg_all"
+                    id="check_all" value="0">
+            </div>
+        </th>
+        <th>Aksi</th>
+    @endsection
+
     @push('css_plugin')
         <link href="{{ asset_ext . 'sweetalert/css/sweetalert.css' }}" rel="stylesheet" />
     @endpush
@@ -308,3 +217,80 @@
         </script>
     @endpush
 @endif
+
+@section('column-table')
+    <tr>
+        <th>No</th>
+        @yield('role-column')
+        <th>Kode Produk</th>
+        <th>Nama Produk</th>
+        <th>Satuan</th>
+        <th>Harga</th>
+        <th>Stok Produk</th>
+        <th>Stok Minimal</th>
+    </tr>
+@endsection
+
+@section('content')
+    {{-- <h6 class="mb-0 text-uppercase">List Data</h6>
+    <hr /> --}}
+    {!! show_alert() !!}
+    <div class="card">
+        <div class="card-body">
+            {{-- <h5 class="card-title">List Data</h5> --}}
+            <div class="page-breadcrumb d-sm-flex align-items-center">
+                <h5 class="card-title">List Data</h5>
+                @yield('role-button')
+            </div>
+            <hr />
+
+            <div class="table-responsive">
+                <table id="list_data" class="table table-striped table-bordered table-hover" style="width:100%">
+                    <thead class="text-center">
+                        @yield('column-table')
+                    </thead>
+                    <tbody>
+                        @php
+                            $no = 1;
+                        @endphp
+                        @foreach ($list_produk as $row)
+                            <tr>
+                                <td align="center">{{ $no++ }}</td>
+                                @if ($is_role)
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)"
+                                                name="plh_brg[]" id="plh_brg_{{ $row->id }}"
+                                                value="{{ $row->id }}">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('produk.edit', ['id' => encode($row->id)]) }}"
+                                            class="btn btn-info btn-sm" title="Update Data">
+                                            <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
+                                        </a>
+                                        <button type="button" onclick="deleteData(this)" data-id="{{ encode($row->id) }}"
+                                            data-link="{{ url('produk/delete') }}" class="btn btn-sm btn-danger"
+                                            title="Hapus Data">
+                                            <i class="lni lni-trash me-0 font-sm"></i>
+                                        </button>
+                                    </td>
+                                @endif
+                                <td align="center">{{ $row->kode_produk }}</td>
+                                <td>{{ $row->nama_produk }}</td>
+                                <td align="center">{{ $row->satuan_produk }}</td>
+                                <td align="right">{{ isset($row->tarif->harga) ? nominal($row->tarif->harga) : '' }}
+                                </td>
+                                <td align="right">{{ $row->stok_produk }}</td>
+                                <td align="right">{{ $row->stok_minimal }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot class="text-center">
+                        @yield('column-table')
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+@endsection

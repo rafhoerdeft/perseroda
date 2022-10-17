@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ app()->getLocale() }}" class="color-sidebar {{ Auth::user()->role->color }}">
+<html lang="{{ app()->getLocale() }}" class="color-sidebar {{ auth()->user()->role->color }}">
 
 <head>
     @include('template.meta')
@@ -14,7 +14,7 @@
     <!-- Bootstrap CSS -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    <link href="{{ asset('assets/css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/app-new.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/icons.css') }}" rel="stylesheet">
 
     <!-- Theme Style CSS -->
@@ -30,6 +30,19 @@
 
     <!-- Style CSS tambahan -->
     @stack('css_style')
+
+    <style>
+        .loading-process {
+            text-align: center;
+            z-index: 10000;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background: #32004c5e;
+            display: none;
+        }
+    </style>
 
     <style>
         .dt-buttons .btn {
@@ -56,16 +69,19 @@
 </head>
 
 <body>
+
+    @stack('loading')
+
     <!--wrapper-->
     <div class="wrapper">
         <!--sidebar wrapper -->
         <div class="sidebar-wrapper" data-simplebar="true">
             <div class="sidebar-header">
                 <div>
-                    <img src="{{ asset('assets/images/logo-icon.png') }}" class="logo-icon" alt="logo icon">
+                    <img src="{{ show_image('LOGO.png') }}" class="logo-icon" alt="logo icon">
                 </div>
                 <div>
-                    <h4 class="logo-text">PDAU</h4>
+                    <h6 class="logo-text">Perusahaan Daerah Aneka Usaha</h6>
                 </div>
                 <div class="toggle-icon ms-auto"><i class='bx bx-first-page'></i>
                 </div>

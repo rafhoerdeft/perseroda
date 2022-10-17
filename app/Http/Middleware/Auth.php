@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth as FacadesAuth;
 
 class Auth
 {
@@ -17,9 +16,17 @@ class Auth
      */
     public function handle(Request $request, Closure $next, $roles)
     {
-        if (FacadesAuth::check()) {
+        if (auth()->guard('pdau')->check()) {
             $log = $request->user()->role->nama_role;
             $role = explode(';', $roles);
+
+            // $finalArray = [];
+            // $role = explode(';', $roles);
+            // foreach ($role as $key) {
+            //     $tmp = explode('|', $key);
+            //     $finalArray[$tmp[0]] = explode('-', $tmp[1]);
+            // }
+
             if (!in_array($log, $role)) {
                 // abort(401);
 ?>

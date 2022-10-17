@@ -42,7 +42,7 @@ class Rincian extends UserBaseController
 
         $main_route = 'transaksi.out.nota.rincian.';
 
-        $list_data = RincianNota::with('produk')->latest()->get();
+        $list_data = RincianNota::with('produk')->where('nota_id', $nota_id)->latest()->get();
 
         $data = compact(
             'breadcrumb',
@@ -151,6 +151,7 @@ class Rincian extends UserBaseController
 
     public function delete(Request $request)
     {
+        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), ['id' => 'required']);
 
@@ -171,8 +172,10 @@ class Rincian extends UserBaseController
                 throw new \Exception('Gagal hapus data!');
             }
 
+            DB::commit();
             $res = ['success' => true];
         } catch (\Exception $e) {
+            DB::rollBack();
             $res = ['success' => false, 'alert' => $e->getMessage()];
         }
 

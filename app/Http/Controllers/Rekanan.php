@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Tarif;
 use App\Models\Rekanan as ModelRekanan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -20,7 +19,7 @@ class Rekanan extends UserBaseController
         $this->middleware(function ($request, $next) {
             $this->is_role = false;
             $role = ['bendahara', 'akuntansi'];
-            if (in_array(Auth::user()->role->nama_role, $role)) {
+            if (in_array(auth()->user()->role->nama_role, $role)) {
                 $this->is_role = true;
             }
             return $next($request);
@@ -66,7 +65,6 @@ class Rekanan extends UserBaseController
             ];
 
             if ($request->rekanan_id) {
-                dd('tt');
                 $rekanan_id = decode($request->rekanan_id);
             } else {
                 $rekanan_id = null;

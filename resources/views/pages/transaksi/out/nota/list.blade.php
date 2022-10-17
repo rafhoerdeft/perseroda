@@ -226,13 +226,14 @@
 @push('css_style')
     <style>
         .form-check {
-            padding-left: 2rem;
+            /* padding-left: 2rem; */
             margin: 0px;
         }
 
         .form-check-input {
             width: 19px;
             height: 19px;
+            float: none !important;
         }
     </style>
 @endpush
@@ -279,7 +280,7 @@
 
     @push('js_script')
         <script>
-            createDataTableExport('list_data', info, msg, 9);
+            createDataTableExport('list_data', info, msg, 10);
         </script>
 
         <script>
@@ -391,7 +392,7 @@
         <script>
             function deleteAll() {
                 var dataid = $('#delete_all').val();
-                var link = "{{ url('all/delete') }}";
+                var link = "{{ route($main_route . 'delete.all') }}";
                 var table = "nota";
                 var data = {
                     dataid: dataid,
@@ -407,7 +408,7 @@
 @else
     @push('js_script')
         <script>
-            createDataTableExport('list_data', info, msg, 7, [0], 0);
+            createDataTableExport('list_data', info, msg, 8, [0], 0);
         </script>
 
         <script>

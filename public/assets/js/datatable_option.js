@@ -35,7 +35,7 @@ function createDataTableExport(name_id, info, msg, num_cols = 1, column_no_order
     col_print.splice(1, remove_cols); //At position 1, remove 2 value
 
     $('#' + name_id).dataTable({
-        "dom": '<"row"<"col-md-6"<"row"<"col-md-4 mb-2"l><"col-md-8 mb-2"B>>><"col-md-6"f>><"table-responsive"t><"row"<"col-md-6"i><"col-md-6"p>>',
+        "dom": '<"row gx-0 gy-1"<"col-md-6"<"row gx-2"<"col-md-5 mb-2"l><"col-md-7 text-lg-start text-center mb-2"B>>><"col-md-6 pe-1"f>><"table-responsive"t><"row"<"col-md-6"i><"col-md-6"p>>',
         // "searching": true,
         "order": [],
         "columnDefs":[  
@@ -58,7 +58,9 @@ function createDataTableExport(name_id, info, msg, num_cols = 1, column_no_order
                     "columns": col_print,
                     "format": {
                         body: function (data, row, column, node) {
-                          return data.toString().replaceAll('.', '');
+                            //   return column === 8 ? data.toString().replaceAll('.', '') : data;
+                            let dt = data.toString().replace(/<.*?>/ig, ""); // remove tag html
+                            return dt.toString().replaceAll('.', ''); // remove '.' in nominal
                         }
                     }
                 }
@@ -206,7 +208,7 @@ function createDataTableServerSide(name_id = '', url = '', columns = [], info = 
         processing: true,
         serverSide: true,
         ajax: url,
-        dom: '<"row"<"col-md-6"<"row"<"col-md-4 mb-2"l><"col-md-8 mb-2"B>>><"col-md-6"f>><"table-responsive"t><"row"<"col-md-6"i><"col-md-6"p>>Tr',
+        dom: '<"row gx-0 gy-1"<"col-md-6"<"row gx-2"<"col-md-5 mb-2"l><"col-md-7 text-lg-start text-center mb-2"B>>><"col-md-6 pe-1"f>><"table-responsive"t><"row"<"col-md-6"i><"col-md-6"p>>Tr',
         // "searching": true,
         lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
         order: [],
