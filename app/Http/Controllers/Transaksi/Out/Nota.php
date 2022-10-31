@@ -8,7 +8,6 @@ use App\Models\Produk;
 use App\Models\Rekanan;
 use App\Models\RincianNota;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 // use Yajra\DataTables\DataTables;
@@ -24,7 +23,7 @@ class Nota extends UserBaseController
         $this->middleware(function ($request, $next) {
             $this->is_role = false;
             $role = ['bendahara'];
-            if (in_array(Auth::user()->role->nama_role, $role)) {
+            if (in_array(auth()->user()->role->nama_role, $role)) {
                 $this->is_role = true;
             }
             return $next($request);
@@ -145,7 +144,7 @@ class Nota extends UserBaseController
         DB::beginTransaction();
         try {
             $data_nota = [
-                'user_id'   => Auth::user()->id,
+                'user_id'   => auth()->user()->id,
                 'tgl_nota' => re_date_format($request->tgl_nota),
                 'no_nota' => $request->no_nota ?? '-',
                 'rekanan_id' => decode($request->rekanan),

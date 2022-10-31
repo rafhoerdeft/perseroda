@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Config\Logo;
 use App\Http\Controllers\Order\Perdagangan;
 use App\Http\Livewire\Base;
 use Illuminate\Support\Facades\Route;
@@ -23,7 +24,7 @@ Route::prefix('/')->name('auth.')->namespace('App\Http\Controllers')->group(func
     Route::get('logout', 'Login@logout')->name('logout');
 });
 
-Route::middleware(['preventBackHistory', 'auth.user:akuntansi;bendahara;kasir'])->get('dashboard', [App\Http\Controllers\Dashboard::class, 'index'])->name('dash');
+Route::middleware(['preventBackHistory', 'auth.user'])->get('dashboard', [App\Http\Controllers\Dashboard::class, 'index'])->name('dash');
 // Route::middleware(['preventBackHistory', 'auth.user:main|akuntansi-bendahara;second|kasir'])->get('dashboard', [App\Http\Controllers\Dashboard::class, 'index'])->name('dash');
 
 Route::middleware('preventBackHistory')->prefix('produk')->name('produk.')->namespace('App\Http\Controllers')->group(function () {
@@ -43,8 +44,8 @@ Route::middleware('preventBackHistory')->prefix('rekanan')->name('rekanan.')->na
 });
 
 Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')->group(function () {
-    Route::middleware('preventBackHistory')->prefix('in')->name('in.')->namespace('App\Http\Controllers\Transaksi\In')->group(function () {
-        Route::middleware('preventBackHistory')->prefix('perdagangan')->name('perdagangan.')->group(function () {
+    Route::prefix('in')->name('in.')->namespace('App\Http\Controllers\Transaksi\In')->group(function () {
+        Route::prefix('perdagangan')->name('perdagangan.')->group(function () {
             Route::get('', 'Perdagangan@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('data/{status?}/{jenis?}', 'Perdagangan@getData')->name('data')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('add', 'Perdagangan@add')->name('add')->middleware('auth.user:kasir');
@@ -53,13 +54,13 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
             Route::post('delete', 'Perdagangan@delete')->name('delete')->middleware('auth.user:kasir');
             Route::post('delete/all', 'Perdagangan@deleteAll')->name('delete.all')->middleware('auth.user:kasir');
             Route::post('save', 'Perdagangan@save')->name('save')->middleware('auth.user:kasir');
-            Route::middleware('preventBackHistory')->prefix('change')->name('change.')->group(function () {
+            Route::prefix('change')->name('change.')->group(function () {
                 Route::post('statusbayar', 'Perdagangan@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
                 Route::post('jenisbayar', 'Perdagangan@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
             });
             Route::get('print/{id?}', 'Perdagangan@printNota')->name('print')->middleware('auth.user:kasir');
         });
-        Route::middleware('preventBackHistory')->prefix('percetakan')->name('percetakan.')->group(function () {
+        Route::prefix('percetakan')->name('percetakan.')->group(function () {
             Route::get('', 'Percetakan@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('data/{status?}/{jenis?}', 'Percetakan@getData')->name('data')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('add', 'Percetakan@add')->name('add')->middleware('auth.user:akuntansi;bendahara;kasir');
@@ -68,12 +69,12 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
             Route::post('delete', 'Percetakan@delete')->name('delete')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::post('delete/all', 'Percetakan@deleteAll')->name('delete.all')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::post('save', 'Percetakan@save')->name('save')->middleware('auth.user:akuntansi;bendahara;kasir');
-            Route::middleware('preventBackHistory')->prefix('change')->name('change.')->group(function () {
+            Route::prefix('change')->name('change.')->group(function () {
                 Route::post('statusbayar', 'Percetakan@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
                 Route::post('jenisbayar', 'Percetakan@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
             });
         });
-        Route::middleware('preventBackHistory')->prefix('jasa')->name('jasa.')->group(function () {
+        Route::prefix('jasa')->name('jasa.')->group(function () {
             Route::get('', 'Jasa@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('add', 'Jasa@add')->name('add')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('edit/{id?}', 'Jasa@edit')->name('edit')->middleware('auth.user:akuntansi;bendahara;kasir');
@@ -83,7 +84,7 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
     });
 
     Route::middleware('preventBackHistory')->prefix('out')->name('out.')->namespace('App\Http\Controllers\Transaksi\Out')->group(function () {
-        Route::middleware('preventBackHistory')->prefix('nota')->name('nota.')->group(function () {
+        Route::prefix('nota')->name('nota.')->group(function () {
             Route::get('', 'Nota@index')->name('list')->middleware('auth.user:akuntansi;bendahara');
             Route::get('data/{status?}/{jenis?}', 'Nota@getData')->name('data')->middleware('auth.user:akuntansi;bendahara');
             Route::get('add', 'Nota@add')->name('add')->middleware('auth.user:akuntansi;bendahara');
@@ -92,11 +93,11 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
             Route::post('delete', 'Nota@delete')->name('delete')->middleware('auth.user:bendahara,akuntansi');
             Route::post('delete/all', 'Nota@deleteAll')->name('delete.all')->middleware('auth.user:bendahara,akuntansi');
             Route::post('save', 'Nota@save')->name('save')->middleware('auth.user:bendahara,akuntansi');
-            Route::middleware('preventBackHistory')->prefix('change')->name('change.')->group(function () {
+            Route::prefix('change')->name('change.')->group(function () {
                 Route::post('statusbayar', 'Nota@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara');
                 Route::post('jenisbayar', 'Nota@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara');
             });
-            Route::middleware('preventBackHistory')->prefix('rincian')->name('rincian.')->group(function () {
+            Route::prefix('rincian')->name('rincian.')->group(function () {
                 Route::get('list/{id?}', 'Rincian@index')->name('list')->middleware('auth.user:akuntansi;bendahara');
                 Route::post('save', 'Rincian@save')->name('save')->middleware('auth.user:akuntansi;bendahara');
                 Route::get('produk', 'Rincian@getProduk')->name('produk')->middleware('auth.user:akuntansi;bendahara');
@@ -115,5 +116,31 @@ Route::get('live', Base::class)->name('base');
 
 // STORAGE FILE ROUTE
 Route::prefix('storage')->name('storage.')->namespace('App\Http\Controllers')->group(function () {
-    Route::get('image/{path_file?}', 'Storage@image')->name('image')->middleware('auth.user:akuntansi;bendahara;kasir');
+    Route::get('image/{path_file?}', 'Storage@image')->name('image')->middleware('auth.user');
+});
+
+Route::middleware(['preventBackHistory', 'auth.user:admin'])->group(function () {
+    Route::prefix('config')->name('config.')->namespace('App\Http\Controllers\Config')->group(function () {
+        Route::name('logo')->resource('logo', 'Logo'); // GET, POST, PUT, DELETE
+        Route::name('password')->resource('password', 'Password'); // GET, POST, PUT, DELETE
+        Route::name('periode')->resource('periode', 'Periode'); // GET, POST, PUT, DELETE
+    });
+    Route::prefix('jabatan')->name('jabatan.')->namespace('App\Http\Controllers')->group(function () {
+        Route::get('', 'Jabatan@index')->name('list');
+        Route::post('store', 'Jabatan@store')->name('store');
+        Route::post('delete', 'Jabatan@delete')->name('delete');
+        Route::post('delete/all', 'Jabatan@deleteAll')->name('delete.all');
+    });
+    Route::prefix('pegawai')->name('pegawai.')->namespace('App\Http\Controllers')->group(function () {
+        Route::get('', 'Pegawai@index')->name('list');
+        Route::post('store', 'Pegawai@store')->name('store');
+        Route::post('delete', 'Pegawai@delete')->name('delete');
+        Route::post('delete/all', 'Pegawai@deleteAll')->name('delete.all');
+    });
+    Route::prefix('akun')->name('akun.')->namespace('App\Http\Controllers')->group(function () {
+        Route::get('', 'Akun@index')->name('list');
+        Route::post('store', 'Akun@store')->name('store');
+        Route::post('delete', 'Akun@delete')->name('delete');
+        Route::post('delete/all', 'Akun@deleteAll')->name('delete.all');
+    });
 });

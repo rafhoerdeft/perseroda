@@ -14,7 +14,12 @@ class Storage extends Controller
                 ->header('Content-Type', ['image/png', 'image/jpeg'])
                 ->header('Cache-Control', 'no-cache')
                 ->header('Pragma', 'no-cache');
-            readfile(storage_path('image/' . decode($path_file)));
+
+            $arr = explode('.', $path_file);
+            array_pop($arr); // remove last array value
+            $file = join('', $arr); // join array value to string
+
+            readfile(storage_path('app/' . decode($file)));
         } catch (\Exception $e) {
             $response = abort('404');
         }

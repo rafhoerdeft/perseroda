@@ -1,31 +1,64 @@
 @extends('template.master')
 
-@section('column-table')
-    <tr>
-        <th>No</th>
-        @if ($is_role)
-            <th>
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="plh_brg_all"
-                        id="check_all" value="0">
-                </div>
-            </th>
-            <th>Aksi</th>
-        @endif
-        <th>Kode</th>
-        <th>Produk</th>
-        <th>Satuan</th>
-        <th>Harga</th>
-        <th>Jumlah</th>
-        <th>Total</th>
-        {{-- <th>Keterangan</th> --}}
-    </tr>
-@endsection
+@push('css_plugin')
+    <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
+@endpush
 
-@section('content')
-    {!! show_alert() !!}
-    <div class="row g-2">
-        {{-- Form Input  --}}
+@push('css_style')
+    <style>
+        .form-check {
+            /* padding-left: 2rem; */
+            margin: 0px;
+        }
+
+        .form-check-input {
+            width: 19px;
+            height: 19px;
+            float: none !important;
+        }
+    </style>
+@endpush
+
+@push('js_plugin')
+    <script src="{{ asset('assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset_js('datatable_option.js') }}"></script>
+    <script src="{{ asset_js('number_input.js') }}"></script>
+@endpush
+
+
+@if ($is_role)
+    @section('role-column')
+        <th>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="plh_brg_all" id="check_all"
+                    value="0">
+            </div>
+        </th>
+        <th>Aksi</th>
+    @endsection
+
+    @section('role-button')
+        <div class="ms-auto">
+            <div class="row">
+                <div class="col-sm-12">
+                    <input type="hidden" name="delete_all" id="delete_all">
+                    <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100" type="button"
+                        onclick="deleteAll()" disabled>
+                        <i class="bx bx-trash"></i>Hapus Data
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
+                    </button>
+                </div>
+                {{-- <div class="col-sm-6">
+                <a href="{{ route('produk.add') }}" class="btn btn-primary w-100">
+                    <i class="bx bx-list-plus"></i>Tambah Data
+                </a>
+            </div> --}}
+            </div>
+        </div>
+    @endsection
+
+    @section('role-form')
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-body">
@@ -106,236 +139,119 @@
                 </div>
             </div>
         </div>
+    @endsection
 
-        {{-- List table  --}}
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-body">
-                    {{-- <h5 class="card-title">List Data</h5> --}}
-                    <div class="page-breadcrumb d-sm-flex align-items-center">
-                        <h5 class="card-title">List Data</h5>
-                        @if ($is_role)
-                            <div class="ms-auto">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <input type="hidden" name="delete_all" id="delete_all">
-                                        <button id="btn_delete" class="btn btn-danger position-relative me-4 w-100"
-                                            type="button" onclick="deleteAll()" disabled>
-                                            <i class="bx bx-trash"></i>Hapus Data
-                                            <span
-                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark">0</span>
-                                        </button>
-                                    </div>
-                                    {{-- <div class="col-sm-6">
-                                        <a href="{{ route('produk.add') }}" class="btn btn-primary w-100">
-                                            <i class="bx bx-list-plus"></i>Tambah Data
-                                        </a>
-                                    </div> --}}
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                    <hr>
-
-                    <div class="table-responsive">
-                        <table id="list_data" class="table table-striped table-bordered table-hover font-sm"
-                            style="width:100%">
-                            <thead class="text-center">
-                                @yield('column-table')
-                            </thead>
-                            <tbody>
-                                @php
-                                    $no = 1;
-                                @endphp
-                                @foreach ($list_data as $row)
-                                    <tr>
-                                        <td align="center">{{ $no++ }}</td>
-                                        @if ($is_role)
-                                            <td>
-                                                <div class="form-check">
-                                                    <input type="checkbox" class="form-check-input"
-                                                        onchange="onCheckChange(this)" name="plh_brg[]"
-                                                        id="plh_brg_{{ $row->id }}" value="{{ $row->id }}">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <button data-id="{{ encode($row->id) }}"
-                                                    data-produk="{{ $row->produk_id }}"
-                                                    data-produk_nama="{{ $row->produk->nama_produk }}"
-                                                    data-produk_kode="{{ $row->produk->kode_produk }}"
-                                                    data-harga="{{ nominal($row->harga_produk) }}"
-                                                    data-jml="{{ nominal($row->jml_produk) }}" onclick="editData(this)"
-                                                    class="btn btn-info btn-sm" title="Update Data">
-                                                    <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
-                                                </button>
-                                                <button type="button" onclick="deleteData(this)"
-                                                    data-id="{{ encode($row->id) }}"
-                                                    data-link="{{ route($main_route . 'delete') }}"
-                                                    class="btn btn-sm btn-danger" title="Hapus Data">
-                                                    <i class="lni lni-trash me-0 font-sm"></i>
-                                                </button>
-                                            </td>
-                                        @endif
-                                        <td align="center">{{ $row->produk->kode_produk }}</td>
-                                        <td>{{ $row->produk->nama_produk }}</td>
-                                        <td align="center">{{ $row->produk->satuan_produk }}</td>
-                                        <td align="right">{{ nominal($row->harga_produk) }}
-                                        </td>
-                                        <td align="right">{{ nominal($row->jml_produk) }}</td>
-                                        <td align="right">{{ nominal($row->jml_produk * $row->harga_produk) }}</td>
-                                        {{-- <td>{{ $row->ket_rincian_nota }}</td> --}}
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot class="text-center">
-                                @yield('column-table')
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-@endsection
-
-@push('css_plugin')
-    <link href="{{ asset('assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
-    {{-- Select 2 --}}
-    <link href="{{ asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/plugins/select2/css/select2-bootstrap4.css') }}" rel="stylesheet" />
-@endpush
-
-@push('css_style')
-    <style>
-        .form-check {
-            /* padding-left: 2rem; */
-            margin: 0px;
-        }
-
-        .form-check-input {
-            width: 19px;
-            height: 19px;
-            float: none !important;
-        }
-    </style>
-@endpush
-
-@push('js_plugin')
-    <script src="{{ asset('assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
-    <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
-    <script src="{{ asset_js('datatable_option.js') }}"></script>
-    <script src="{{ asset_js('number_input.js') }}"></script>
-@endpush
-
-@push('js_script')
-    {{-- Select 2 Config  --}}
-    <script>
-        var limit_data_show = 10;
-        $('#produk').select2({
-            ajax: {
-                url: "{{ route($main_route . 'produk') }}",
-                dataType: 'json',
-                type: "GET",
-                // quietMillis: 50,
-                delay: 150,
-                data: function(params) {
-                    return {
-                        limit: limit_data_show,
-                        search: params.term || '',
-                        page: params.page || 1
-                    }
-                },
-                processResults: function(data, params) {
-                    params.page = params.page || 1;
-                    if (data.response) {
-                        return {
-                            // results: $.map(data.result, function(item) { //jika tidak menggunakan template
-                            //     return {
-                            //         text: item.nama_produk,
-                            //         id: item.id
-                            //     }
-                            // }),
-
-                            //data yang akan ditangkap oleh templateResult & templateSelection
-                            results: data.result,
-                            pagination: {
-                                more: (params.page * limit_data_show) < data.count
-                            }
-                        };
-                    } else {
-                        return {
-                            results: {
-                                text: data.result,
-                            }
-                        }
-                    }
-                },
-                cache: true
-            },
-            theme: 'bootstrap4',
-            width: '100%',
-            minimumInputLength: 0,
-            allowClear: true,
-            placeholder: 'Pilih Produk',
-            templateResult: function(item) { //format tampilan saat list pilihan terbuka
-                if (item.loading) {
-                    return item.text;
-                }
-                var res = $(
-                    '<div class="row g-0 font-sm">' +
-                    '<div class="col-md-10">' + item.nama_produk + '</div>' +
-                    '<div class="col-md-2 fw-bold">' + item.kode_produk + '</div>' +
-                    '</div>'
-                );
-                return res;
-            },
-            // templateSelection: function(item) { //format tampilan saat list dipilih
-            //     if (!item.id) {
-            //         return item.text;
-            //     }
-            //     return item.nama_produk + ' - ' + item.kode_produk;
-            // }
-        }).on('select2:select', function(evt) {
-            // var data = $(".select2 option:selected").val();
-        });
-    </script>
-
-    <script>
-        function resetForm(data) {
-            var form = $(data).closest('form');
-            $(form).trigger('reset');
-            $("#produk").val('').trigger('change');
-        }
-
-        function editData(data) {
-            var rincian_nota_id = $(data).data().id;
-            var produk_id = $(data).data().produk;
-            var produk_nama = $(data).data().produk_nama;
-            var produk_kode = $(data).data().produk_kode;
-            var harga = $(data).data().harga;
-            var jml = $(data).data().jml;
-
-            $('#rincian_nota_id').val(rincian_nota_id);
-            $('#harga_produk').val(harga);
-            $('#jml_produk').val(jml);
-
-            var $selectedOption = $("<option selected></option>").val(produk_id).text(produk_nama + ' - ' +
-                produk_kode);
-
-            $("#produk").append($selectedOption).trigger('change');
-        }
-    </script>
-@endpush
-
-@if ($is_role)
     @push('css_plugin')
         <link href="{{ asset_ext('sweetalert/css/sweetalert.css') }}" rel="stylesheet" />
+        {{-- Select 2 --}}
+        <link href="{{ asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet" />
+        <link href="{{ asset('assets/plugins/select2/css/select2-bootstrap4.css') }}" rel="stylesheet" />
     @endpush
 
     @push('js_plugin')
         <script src="{{ asset_ext('sweetalert/js/sweetalert.min.js') }}"></script>
+        <script src="{{ asset('assets/plugins/select2/js/select2.min.js') }}"></script>
         <script src="{{ asset_js('delete_data.js') }}"></script>
+    @endpush
+
+    @push('js_script')
+        {{-- Select 2 Config  --}}
+        <script>
+            var limit_data_show = 10;
+            $('#produk').select2({
+                ajax: {
+                    url: "{{ route($main_route . 'produk') }}",
+                    dataType: 'json',
+                    type: "GET",
+                    // quietMillis: 50,
+                    delay: 150,
+                    data: function(params) {
+                        return {
+                            limit: limit_data_show,
+                            search: params.term || '',
+                            page: params.page || 1
+                        }
+                    },
+                    processResults: function(data, params) {
+                        params.page = params.page || 1;
+                        if (data.response) {
+                            return {
+                                // results: $.map(data.result, function(item) { //jika tidak menggunakan template
+                                //     return {
+                                //         text: item.nama_produk,
+                                //         id: item.id
+                                //     }
+                                // }),
+
+                                //data yang akan ditangkap oleh templateResult & templateSelection
+                                results: data.result,
+                                pagination: {
+                                    more: (params.page * limit_data_show) < data.count
+                                }
+                            };
+                        } else {
+                            return {
+                                results: {
+                                    text: data.result,
+                                }
+                            }
+                        }
+                    },
+                    cache: true
+                },
+                theme: 'bootstrap4',
+                width: '100%',
+                minimumInputLength: 0,
+                allowClear: true,
+                placeholder: 'Pilih Produk',
+                templateResult: function(item) { //format tampilan saat list pilihan terbuka
+                    if (item.loading) {
+                        return item.text;
+                    }
+                    var res = $(
+                        '<div class="row g-0 font-sm">' +
+                        '<div class="col-md-10">' + item.nama_produk + '</div>' +
+                        '<div class="col-md-2 fw-bold">' + item.kode_produk + '</div>' +
+                        '</div>'
+                    );
+                    return res;
+                },
+                // templateSelection: function(item) { //format tampilan saat list dipilih
+                //     if (!item.id) {
+                //         return item.text;
+                //     }
+                //     return item.nama_produk + ' - ' + item.kode_produk;
+                // }
+            }).on('select2:select', function(evt) {
+                // var data = $(".select2 option:selected").val();
+            });
+        </script>
+
+        <script>
+            function resetForm(data) {
+                var form = $(data).closest('form');
+                $(form).trigger('reset');
+                $("#produk").val('').trigger('change');
+            }
+
+            function editData(data) {
+                var rincian_nota_id = $(data).data().id;
+                var produk_id = $(data).data().produk;
+                var produk_nama = $(data).data().produk_nama;
+                var produk_kode = $(data).data().produk_kode;
+                var harga = $(data).data().harga;
+                var jml = $(data).data().jml;
+
+                $('#rincian_nota_id').val(rincian_nota_id);
+                $('#harga_produk').val(harga);
+                $('#jml_produk').val(jml);
+
+                var $selectedOption = $("<option selected></option>").val(produk_id).text(produk_nama + ' - ' +
+                    produk_kode);
+
+                $("#produk").append($selectedOption).trigger('change');
+            }
+        </script>
     @endpush
 
     @push('js_script')
@@ -478,3 +394,96 @@
         </script>
     @endpush
 @endif
+
+
+@section('column-table')
+    <tr>
+        <th>No</th>
+        @yield('role-column')
+        <th>Kode</th>
+        <th>Produk</th>
+        <th>Satuan</th>
+        <th>Harga</th>
+        <th>Jumlah</th>
+        <th>Total</th>
+        {{-- <th>Keterangan</th> --}}
+    </tr>
+@endsection
+
+@section('content')
+    {!! show_alert() !!}
+    <div class="row g-2">
+        {{-- Form Input  --}}
+        @yield('role-form')
+
+        {{-- List table  --}}
+        <div class="{{ $is_role ? 'col-lg-8' : 'col-lg-12' }}">
+            <div class="card">
+                <div class="card-body">
+                    {{-- <h5 class="card-title">List Data</h5> --}}
+                    <div class="page-breadcrumb d-sm-flex align-items-center">
+                        <h5 class="card-title">List Data</h5>
+                        @yield('role-button')
+                    </div>
+                    <hr>
+
+                    <div class="table-responsive">
+                        <table id="list_data" class="table table-striped table-bordered table-hover font-sm"
+                            style="width:100%">
+                            <thead class="text-center">
+                                @yield('column-table')
+                            </thead>
+                            <tbody>
+                                @php
+                                    $no = 1;
+                                @endphp
+                                @foreach ($list_data as $row)
+                                    <tr>
+                                        <td align="center">{{ $no++ }}</td>
+                                        @if ($is_role)
+                                            <td>
+                                                <div class="form-check">
+                                                    <input type="checkbox" class="form-check-input"
+                                                        onchange="onCheckChange(this)" name="plh_brg[]"
+                                                        id="plh_brg_{{ $row->id }}" value="{{ $row->id }}">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button data-id="{{ encode($row->id) }}"
+                                                    data-produk="{{ $row->produk_id }}"
+                                                    data-produk_nama="{{ $row->produk->nama_produk }}"
+                                                    data-produk_kode="{{ $row->produk->kode_produk }}"
+                                                    data-harga="{{ nominal($row->harga_produk) }}"
+                                                    data-jml="{{ nominal($row->jml_produk) }}" onclick="editData(this)"
+                                                    class="btn btn-info btn-sm" title="Update Data">
+                                                    <i class="lni lni-pencil-alt me-0 text-white font-sm"></i>
+                                                </button>
+                                                <button type="button" onclick="deleteData(this)"
+                                                    data-id="{{ encode($row->id) }}"
+                                                    data-link="{{ route($main_route . 'delete') }}"
+                                                    class="btn btn-sm btn-danger" title="Hapus Data">
+                                                    <i class="lni lni-trash me-0 font-sm"></i>
+                                                </button>
+                                            </td>
+                                        @endif
+                                        <td align="center">{{ $row->produk->kode_produk }}</td>
+                                        <td>{{ $row->produk->nama_produk }}</td>
+                                        <td align="center">{{ $row->produk->satuan_produk }}</td>
+                                        <td align="right">{{ nominal($row->harga_produk) }}
+                                        </td>
+                                        <td align="right">{{ nominal($row->jml_produk) }}</td>
+                                        <td align="right">{{ nominal($row->jml_produk * $row->harga_produk) }}</td>
+                                        {{-- <td>{{ $row->ket_rincian_nota }}</td> --}}
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot class="text-center">
+                                @yield('column-table')
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

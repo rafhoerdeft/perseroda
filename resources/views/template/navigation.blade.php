@@ -5,7 +5,7 @@
     @endphp
 
     @foreach ($navigation as $nav)
-        @if (in_array(Auth::user()->role->nama_role, $nav['role']))
+        @if (in_array(auth()->user()->role->nama_role, $nav['role']) || empty($nav['role']))
             @if (isset($nav['header']))
                 <li class="menu-label">{{ $nav['header'] }}</li>
             @else
@@ -20,7 +20,7 @@
                         <ul>
                             @foreach ($nav['child'] as $child)
                                 @if (isset($child['role']))
-                                    @if (in_array(Auth::user()->role->nama_role, $child['role']))
+                                    @if (in_array(auth()->user()->role->nama_role, $child['role']))
                                         <li>
                                             <a href="{{ $child['url'] }}"
                                                 class="{{ $child['child'] != null ? 'has-arrow' : '' }}">

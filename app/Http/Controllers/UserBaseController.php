@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Config;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -17,6 +18,11 @@ class UserBaseController extends BaseController
     {
         if (!session()->has('nav')) {
             session()->put('nav', Navigation::getMenu());
+        }
+
+        if (!session()->has('configs')) {
+            $conf = Config::select('logo', 'app_name', 'active_period')->find(1)->toArray();
+            session()->put('configs', $conf);
         }
 
         define('storage', url('storage') . '/');

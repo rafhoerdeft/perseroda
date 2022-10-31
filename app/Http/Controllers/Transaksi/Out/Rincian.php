@@ -7,7 +7,6 @@ use App\Models\Nota;
 use App\Models\Produk;
 use App\Models\RincianNota;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 // use Yajra\DataTables\DataTables;
@@ -23,7 +22,7 @@ class Rincian extends UserBaseController
         $this->middleware(function ($request, $next) {
             $this->is_role = false;
             $role = ['bendahara'];
-            if (in_array(Auth::user()->role->nama_role, $role)) {
+            if (in_array(auth()->user()->role->nama_role, $role)) {
                 $this->is_role = true;
             }
             return $next($request);

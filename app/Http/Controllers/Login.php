@@ -18,7 +18,7 @@ class Login extends Controller
     public function index()
     {
         Auth::logout();
-        Session::forget(['log', 'nav']);
+        Session::forget(['log', 'nav', 'configs']);
         return view('auth/index');
     }
 

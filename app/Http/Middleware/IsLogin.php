@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class IsLogin
 {
@@ -17,7 +16,7 @@ class IsLogin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check()) {
+        if (auth()->guard('pdau')->check()) {
             return redirect()->route('dash');
         }
 

@@ -10,7 +10,6 @@ use App\Models\RincianCetakan;
 // use App\Models\RincianOrder;
 use App\Models\UnitUsaha;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\DataTables;
@@ -26,7 +25,7 @@ class Percetakan extends UserBaseController
         $this->middleware(function ($request, $next) {
             $this->is_role = false;
             $role = ['kasir'];
-            if (in_array(Auth::user()->role->nama_role, $role)) {
+            if (in_array(auth()->user()->role->nama_role, $role)) {
                 $this->is_role = true;
             }
             return $next($request);
@@ -84,7 +83,7 @@ class Percetakan extends UserBaseController
             // ->with('rincian_order')
             $list_order->with('rincian_cetakan');
             if ($this->is_role) {
-                $list_order->where('user_id', Auth::user()->id);
+                $list_order->where('user_id', auth()->user()->id);
             }
             $list_order->whereYear('tgl_order', '=', $year);
             $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
@@ -364,7 +363,7 @@ class Percetakan extends UserBaseController
         DB::beginTransaction();
         try {
             $data_order = [
-                'user_id'   => Auth::user()->id,
+                'user_id'   => auth()->user()->id,
                 'nama_klien'  => $request->nama_klien,
                 // 'no_hp_klien'  => $request->no_hp_klien,
                 'tgl_order' => re_date_format($request->tgl_order),
