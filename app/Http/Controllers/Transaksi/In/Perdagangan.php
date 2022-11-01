@@ -39,11 +39,12 @@ class Perdagangan extends UserBaseController
 
         $status_bayar_select = $request->status_bayar;
         $jenis_bayar_select = $request->jenis_bayar;
+        $status_terima_select = $request->status_terima;
 
         $is_role = $this->is_role;
 
         $main_route = 'transaksi.in.perdagangan.';
-        $link_datatable = url('transaksi/in/perdagangan/data/' . $status_bayar_select . '/' . $jenis_bayar_select);
+        $link_datatable = url('transaksi/in/perdagangan/data/' . $status_bayar_select . '/' . $jenis_bayar_select . '/' . $status_terima_select);
 
         $data = compact(
             'breadcrumb',
@@ -51,6 +52,7 @@ class Perdagangan extends UserBaseController
             'is_role',
             'status_bayar_select',
             'jenis_bayar_select',
+            'status_terima_select',
             'main_route',
             'link_datatable',
         );
@@ -58,7 +60,7 @@ class Perdagangan extends UserBaseController
         return view('pages/transaksi/in/perdagangan/list', $data);
     }
 
-    public function getData($status = '', $jenis = '', Request $request)
+    public function getData($status = '', $jenis = '', $status_trm = '', Request $request)
     {
         $year = selected_year;
 
@@ -70,10 +72,19 @@ class Perdagangan extends UserBaseController
             $jenis = '';
         }
 
+        if ($status_trm == 'null') {
+            $status_trm = '';
+        }
+
         if ($request->ajax()) {
             $status_bayar = [
                 0 => 'Belum Bayar',
                 1 => 'Lunas'
+            ];
+
+            $status_terima = [
+                0 => 'Belum Diterima',
+                1 => 'Diterima'
             ];
 
             $list_order = Order::whereHas('unit_usaha', function ($query) {
@@ -84,7 +95,7 @@ class Perdagangan extends UserBaseController
                 $list_order->where('user_id', auth()->user()->id);
             }
             $list_order->whereYear('tgl_order', '=', $year);
-            $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
+            $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%'], ['status_terima', 'LIKE', '%' . $status_trm . '%']]);
             $list_order->latest()->get();
 
             $data_tables = DataTables::of($list_order);
@@ -155,6 +166,29 @@ class Perdagangan extends UserBaseController
                 }
             });
             $raw_columns[] = 'jenis_bayar';
+
+            $data_tables->editColumn('status_terima', function ($row) use ($status_terima) {
+                if ($row->status_terima == 0) {
+                    $bg = 'danger';
+                    $col_sts_byr =  '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_terima[$row->status_terima] . '</span>';
+                    if ($this->is_role) {
+                        $col_sts_byr .= "<div class='mt-1'>
+                                            <button type='button' class='btn btn-sm btn-warning text-sm-b p-1 w-75' 
+                                            data-post='" . json_encode(['id' => encode($row->id)]) . "'
+                                            data-link='" . url('transaksi/in/perdagangan/change/statusterima') . "'
+                                            data-table='list_data' 
+                                            data-title='Ubah status terima (" . $row->no_order . ")'
+                                            data-text='Status terima akan diubah menjadi LUNAS?'
+                                            onclick='confirmDialog(this, false)' title='Ubah Status Terima'>Ubah Status</button>
+                                        </div>";
+                    }
+                    return $col_sts_byr;
+                } else {
+                    $bg = 'success';
+                    return '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_terima[$row->status_terima] . '</span>';
+                }
+            });
+            $raw_columns[] = 'status_terima';
 
             if ($this->is_role) {
                 $data_tables->addColumn('check_all', function ($row) {

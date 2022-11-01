@@ -47,7 +47,7 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
     Route::prefix('in')->name('in.')->namespace('App\Http\Controllers\Transaksi\In')->group(function () {
         Route::prefix('perdagangan')->name('perdagangan.')->group(function () {
             Route::get('', 'Perdagangan@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');
-            Route::get('data/{status?}/{jenis?}', 'Perdagangan@getData')->name('data')->middleware('auth.user:akuntansi;bendahara;kasir');
+            Route::get('data/{status?}/{jenis?}/{status_trm?}', 'Perdagangan@getData')->name('data')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('add', 'Perdagangan@add')->name('add')->middleware('auth.user:kasir');
             Route::get('produk', 'Perdagangan@getProduk')->name('produk')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('edit/{id?}', 'Perdagangan@edit')->name('edit')->middleware('auth.user:kasir');
