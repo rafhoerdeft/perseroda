@@ -57,12 +57,13 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
             Route::prefix('change')->name('change.')->group(function () {
                 Route::post('statusbayar', 'Perdagangan@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
                 Route::post('jenisbayar', 'Perdagangan@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
+                Route::post('statusterima', 'Perdagangan@changeStatusTerima')->name('statusterima')->middleware('auth.user:akuntansi;bendahara;kasir');
             });
             Route::get('print/{id?}', 'Perdagangan@printNota')->name('print')->middleware('auth.user:kasir');
         });
         Route::prefix('percetakan')->name('percetakan.')->group(function () {
             Route::get('', 'Percetakan@index')->name('list')->middleware('auth.user:akuntansi;bendahara;kasir');
-            Route::get('data/{status?}/{jenis?}', 'Percetakan@getData')->name('data')->middleware('auth.user:akuntansi;bendahara;kasir');
+            Route::get('data/{status?}/{jenis?}/{status_trm?}', 'Percetakan@getData')->name('data')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('add', 'Percetakan@add')->name('add')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('produk', 'Percetakan@getProduk')->name('produk')->middleware('auth.user:akuntansi;bendahara;kasir');
             Route::get('edit/{id?}', 'Percetakan@edit')->name('edit')->middleware('auth.user:akuntansi;bendahara;kasir');
@@ -72,6 +73,7 @@ Route::middleware('preventBackHistory')->prefix('transaksi')->name('transaksi.')
             Route::prefix('change')->name('change.')->group(function () {
                 Route::post('statusbayar', 'Percetakan@changeStatusBayar')->name('statusbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
                 Route::post('jenisbayar', 'Percetakan@changeJenisBayar')->name('jenisbayar')->middleware('auth.user:akuntansi;bendahara;kasir');
+                Route::post('statusterima', 'Percetakan@changeStatusTerima')->name('statusterima')->middleware('auth.user:akuntansi;bendahara;kasir');
             });
         });
         Route::prefix('jasa')->name('jasa.')->group(function () {

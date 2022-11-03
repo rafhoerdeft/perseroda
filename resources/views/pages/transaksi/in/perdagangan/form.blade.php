@@ -80,16 +80,16 @@
                         value="{{ old('nama_klien') ?? (isset($order) ? $order->nama_klien : '') }}">
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="jenis_bayar" class="form-label">Transaksi</label>
-                    <div class="row" id="jenis_bayar">
-                        <div class="col-md-4">
+                    <div class="row gx-3" id="jenis_bayar">
+                        <div class="col-md-6 mb-2">
                             <input class="btn-check" type="radio" name="jenis_bayar" id="tunai" value="tunai"
                                 autocomplete="off"
                                 {{ old('jenis_bayar') != null ? (old('jenis_bayar') == 'tunai' ? 'checked' : '') : (isset($order) ? ($order->jenis_bayar == 'tunai' ? 'checked' : '') : 'checked') }}>
                             <label class="btn btn-outline-primary w-100" for="tunai">Tunai</label>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <input class="btn-check" type="radio" name="jenis_bayar" id="bank" value="bank"
                                 autocomplete="off"
                                 {{ old('jenis_bayar') != null ? (old('jenis_bayar') == 'bank' ? 'checked' : '') : (isset($order) ? ($order->jenis_bayar == 'bank' ? 'checked' : '') : '') }}>
@@ -98,20 +98,38 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="status_bayar" class="form-label">Pembayaran</label>
-                    <div class="row" id="status_bayar">
-                        <div class="col-md-4">
+                    <div class="row gx-3" id="status_bayar">
+                        <div class="col-md-6 mb-2">
                             <input class="btn-check" type="radio" name="status_bayar" id="lunas" value="1"
                                 autocomplete="off"
                                 {{ old('status_bayar') != null ? (old('status_bayar') == '1' ? 'checked' : '') : (isset($order) ? ($order->status_bayar == '1' ? 'checked' : '') : 'checked') }}>
                             <label class="btn btn-outline-success w-100" for="lunas">Lunas</label>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <input class="btn-check" type="radio" name="status_bayar" id="belum_bayar" value="0"
                                 autocomplete="off"
                                 {{ old('status_bayar') != null ? (old('status_bayar') == '0' ? 'checked' : '') : (isset($order) ? ($order->status_bayar == '0' ? 'checked' : '') : '') }}>
                             <label class="btn btn-outline-danger w-100" for="belum_bayar">Belum Bayar</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="status_terima" class="form-label">Penerimaan</label>
+                    <div class="row gx-3" id="status_terima">
+                        <div class="col-md-6 mb-2">
+                            <input class="btn-check" type="radio" name="status_terima" id="langsung" value="1"
+                                autocomplete="off"
+                                {{ old('status_terima') != null ? (old('status_terima') == '1' ? 'checked' : '') : (isset($order) ? ($order->status_terima == '1' ? 'checked' : '') : 'checked') }}>
+                            <label class="btn btn-outline-warning w-100" for="langsung">Langsung</label>
+                        </div>
+                        <div class="col-md-6">
+                            <input class="btn-check" type="radio" name="status_terima" id="diantar" value="0"
+                                autocomplete="off"
+                                {{ old('status_terima') != null ? (old('status_terima') == '0' ? 'checked' : '') : (isset($order) ? ($order->status_terima == '0' ? 'checked' : '') : '') }}>
+                            <label class="btn btn-outline-secondary w-100" for="diantar">Diantar</label>
                         </div>
                     </div>
                 </div>

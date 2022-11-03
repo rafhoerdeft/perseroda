@@ -21,6 +21,7 @@
         {{-- <th>Jenis Order</th> --}}
         <th>Status Bayar</th>
         <th>Jenis Bayar</th>
+        <th>Status Terima</th>
         {{-- <th>Total (Rp)</th> --}}
     </tr>
 @endsection
@@ -69,6 +70,13 @@
                         <option value="bank" {{ $jenis_bayar_select == 'bank' ? 'selected' : '' }}>Bank</option>
                     </select>
                 </div>
+                <div class="col-md-3 mb-1">
+                    <select class="select2" name="status_terima" id="status_terima">
+                        <option value="null" selected>Semua Status Terima</option>
+                        <option value="0" {{ $status_terima_select == '0' ? 'selected' : '' }}>Belum Terima</option>
+                        <option value="1" {{ $status_terima_select == '1' ? 'selected' : '' }}>Diterima</option>
+                    </select>
+                </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-success w-100"> <i class="fa-regular fa-eye"></i> Tampil</button>
                 </div>
@@ -77,7 +85,7 @@
             <hr />
 
             <div class="table-responsive">
-                <table id="list_data" class="table table-striped table-bordered table-hover" style="width:100%">
+                <table id="list_data" class="table table-striped table-bordered table-hover font-sm" style="width:100%">
                     <thead class="text-center">
                         @yield('column-table')
                     </thead>
@@ -167,7 +175,7 @@
 @push('js_script')
     {{-- Config DataTable Serverside with Export DataTable --}}
     <script>
-        var num_cols = 8;
+        var num_cols = 9;
         var remove_cols = 1;
         var tgl_awal = "{{ date('01/01/Y') }}";
         var tgl_akhir = "{{ date('d/m/Y') }}";
@@ -207,6 +215,10 @@
             },
             {
                 data: 'jenis_bayar',
+                class: "text-center"
+            },
+            {
+                data: 'status_terima',
                 class: "text-center"
             },
             // {
@@ -375,7 +387,7 @@
             };
             columns.splice(1, 0, check_box); // insert array in specific position At Index 1
 
-            num_cols = 9;
+            num_cols = 10;
             remove_cols = 2;
             createDataTableServerSide('list_data', url, columns, info, msg);
         </script>

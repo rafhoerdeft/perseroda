@@ -83,7 +83,7 @@
                 <div class="col-md-6">
                     <label for="jenis_bayar" class="form-label">Transaksi</label>
                     <div class="row" id="jenis_bayar">
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-1">
                             <input class="btn-check" type="radio" name="jenis_bayar" id="tunai" value="tunai"
                                 autocomplete="off"
                                 {{ old('jenis_bayar') != null ? (old('jenis_bayar') == 'tunai' ? 'checked' : '') : (isset($order) ? ($order->jenis_bayar == 'tunai' ? 'checked' : '') : 'checked') }}>
@@ -119,7 +119,7 @@
                 <div class="col-md-6">
                     <label for="dasar_jenis" class="form-label">Dasar Jenis</label>
                     <div class="row" id="dasar_jenis">
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-1">
                             <input class="btn-check" type="radio" name="dasar_jenis" id="surat" value="surat"
                                 autocomplete="off"
                                 {{ old('dasar_jenis') != null ? (old('dasar_jenis') == 'surat' ? 'checked' : '') : (isset($order) ? ($order->rincian_cetakan->dasar_jenis == 'surat' ? 'checked' : '') : 'checked') }}>
@@ -129,7 +129,7 @@
                             <input class="btn-check" type="radio" name="dasar_jenis" id="lesan" value="lesan"
                                 autocomplete="off"
                                 {{ old('dasar_jenis') != null ? (old('dasar_jenis') == 'lesan' ? 'checked' : '') : (isset($order) ? ($order->rincian_cetakan->dasar_jenis == 'lesan' ? 'checked' : '') : '') }}>
-                            <label class="btn btn-outline-secondary w-100" for="lesan">Lesan</label>
+                            <label class="btn btn-outline-dark w-100" for="lesan">Lesan</label>
                         </div>
                     </div>
                 </div>
@@ -167,7 +167,7 @@
                 <div class="col-md-6">
                     <label for="lampiran_konsep" class="form-label">Lampiran Contoh/Konsep</label>
                     <div class="row" id="lampiran_konsep">
-                        <div class="col-md-4">
+                        <div class="col-md-4 mb-1">
                             <input class="btn-check" type="radio" name="lampiran_konsep" id="ada"
                                 value="1" autocomplete="off"
                                 {{ old('lampiran_konsep') != null ? (old('lampiran_konsep') == '1' ? 'checked' : '') : (isset($order) ? ($order->rincian_cetakan->lampiran_konsep == '1' ? 'checked' : '') : 'checked') }}>
@@ -198,10 +198,28 @@
                         value="{{ old('koordinator_konsep_tgl') ?? (isset($order) && $order->rincian_cetakan->koordinator_konsep_tgl != null ? date('d/m/Y', strtotime($order->rincian_cetakan->koordinator_konsep_tgl)) : date('d/m/Y')) }}">
                 </div>
 
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <label for="lain_lain" class="form-label">Lain - Lain</label>
                     <input type="text" class="form-control" id="lain_lain" name="lain_lain"
                         value="{{ old('lain_lain') ?? (isset($order) ? $order->rincian_cetakan->lain_lain : '') }}">
+                </div>
+
+                <div class="col-md-6">
+                    <label for="status_terima" class="form-label">Penerimaan</label>
+                    <div class="row" id="status_terima">
+                        <div class="col-md-4 mb-1">
+                            <input class="btn-check" type="radio" name="status_terima" id="langsung" value="1"
+                                autocomplete="off"
+                                {{ old('status_terima') != null ? (old('status_terima') == '1' ? 'checked' : '') : (isset($order) ? ($order->status_terima == '1' ? 'checked' : '') : 'checked') }}>
+                            <label class="btn btn-outline-warning w-100" for="langsung">Langsung</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input class="btn-check" type="radio" name="status_terima" id="diantar" value="0"
+                                autocomplete="off"
+                                {{ old('status_terima') != null ? (old('status_terima') == '0' ? 'checked' : '') : (isset($order) ? ($order->status_terima == '0' ? 'checked' : '') : '') }}>
+                            <label class="btn btn-outline-secondary w-100" for="diantar">Diantar</label>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Pesanan --}}

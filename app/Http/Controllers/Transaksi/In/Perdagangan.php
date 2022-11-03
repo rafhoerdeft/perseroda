@@ -169,22 +169,22 @@ class Perdagangan extends UserBaseController
 
             $data_tables->editColumn('status_terima', function ($row) use ($status_terima) {
                 if ($row->status_terima == 0) {
-                    $bg = 'danger';
+                    $bg = 'secondary';
                     $col_sts_byr =  '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_terima[$row->status_terima] . '</span>';
                     if ($this->is_role) {
                         $col_sts_byr .= "<div class='mt-1'>
-                                            <button type='button' class='btn btn-sm btn-warning text-sm-b p-1 w-75' 
+                                            <button type='button' class='btn btn-sm btn-danger text-sm-b p-1 w-75' 
                                             data-post='" . json_encode(['id' => encode($row->id)]) . "'
                                             data-link='" . url('transaksi/in/perdagangan/change/statusterima') . "'
                                             data-table='list_data' 
                                             data-title='Ubah status terima (" . $row->no_order . ")'
-                                            data-text='Status terima akan diubah menjadi LUNAS?'
+                                            data-text='Status terima akan diubah menjadi DITERIMA?'
                                             onclick='confirmDialog(this, false)' title='Ubah Status Terima'>Ubah Status</button>
                                         </div>";
                     }
                     return $col_sts_byr;
                 } else {
-                    $bg = 'success';
+                    $bg = 'warning';
                     return '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_terima[$row->status_terima] . '</span>';
                 }
             });
@@ -341,6 +341,7 @@ class Perdagangan extends UserBaseController
             'nama_klien'  => 'string|nullable',
             'jenis_bayar'  => 'required|in:tunai,bank',
             'status_bayar'  => 'required|numeric|between:0,1',
+            'status_terima'  => 'required|numeric|between:0,1',
             'rincian_produk'  => 'required|string',
             'total_bayar'  => 'required|integer',
             // 'harga'  => 'required|regex:/^[0-9\.,]+$/|not_in:0'
@@ -360,6 +361,7 @@ class Perdagangan extends UserBaseController
                 'status_order' => 3,
                 // 'jenis_order' => $request->jenis_order,
                 'status_bayar' => $request->status_bayar,
+                'status_terima' => $request->status_terima,
                 'jenis_bayar' => $request->jenis_bayar,
                 'total_bayar' => $request->total_bayar,
             ];
@@ -613,6 +615,32 @@ class Perdagangan extends UserBaseController
 
             DB::commit();
             $res = ['response' => true, 'text' => 'Berhasil ubah jenis bayar'];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $res = ['response' => false, 'text' => $e->getMessage()];
+        }
+
+        return json_encode($res);
+    }
+
+    public function changeStatusTerima(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $data_order = [
+                'status_terima' => 1,
+            ];
+
+            $order_id = decode($request->id);
+
+            $order = Order::find($order_id)->update($data_order);
+
+            if (!$order) {
+                throw new \Exception("Gagal ubah status terima");
+            }
+
+            DB::commit();
+            $res = ['response' => true, 'text' => 'Berhasil ubah status terima'];
         } catch (\Exception $e) {
             DB::rollBack();
             $res = ['response' => false, 'text' => $e->getMessage()];

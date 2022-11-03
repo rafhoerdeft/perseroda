@@ -191,7 +191,7 @@
 @push('js_script')
     {{-- Config DataTable Serverside with Export DataTable --}}
     <script>
-        var num_cols = 8;
+        var num_cols = 9;
         var remove_cols = 1;
         var tgl_awal = "{{ date('01/01/Y') }}";
         var tgl_akhir = "{{ date('d/m/Y') }}";
@@ -401,7 +401,7 @@
             };
             columns.splice(1, 0, check_box); // insert array in specific position At Index 1
 
-            num_cols = 9;
+            num_cols = 10;
             remove_cols = 2;
             createDataTableServerSide('list_data', url, columns, info, msg);
         </script>

@@ -39,12 +39,13 @@ class Percetakan extends UserBaseController
 
         $status_bayar_select = $request->status_bayar;
         $jenis_bayar_select = $request->jenis_bayar;
+        $status_terima_select = $request->status_terima;
 
         $is_role = $this->is_role;
 
         $main_route = 'transaksi.in.percetakan.';
 
-        $link_datatable = url('transaksi/in/percetakan/data/' . $status_bayar_select . '/' . $jenis_bayar_select);
+        $link_datatable = url('transaksi/in/percetakan/data/' . $status_bayar_select . '/' . $jenis_bayar_select . '/' . $status_terima_select);
 
         $data = compact(
             'breadcrumb',
@@ -52,6 +53,7 @@ class Percetakan extends UserBaseController
             'is_role',
             'status_bayar_select',
             'jenis_bayar_select',
+            'status_terima_select',
             'main_route',
             'link_datatable',
         );
@@ -59,7 +61,7 @@ class Percetakan extends UserBaseController
         return view('pages/transaksi/in/percetakan/list', $data);
     }
 
-    public function getData($status = '', $jenis = '', Request $request)
+    public function getData($status = '', $jenis = '', $status_trm = '', Request $request)
     {
         $year = selected_year;
 
@@ -71,10 +73,19 @@ class Percetakan extends UserBaseController
             $jenis = '';
         }
 
+        if ($status_trm == 'null') {
+            $status_trm = '';
+        }
+
         if ($request->ajax()) {
             $status_bayar = [
                 0 => 'Belum Bayar',
                 1 => 'Lunas'
+            ];
+
+            $status_terima = [
+                0 => 'Belum Diterima',
+                1 => 'Diterima'
             ];
 
             $list_order = Order::whereHas('unit_usaha', function ($query) {
@@ -86,7 +97,7 @@ class Percetakan extends UserBaseController
                 $list_order->where('user_id', auth()->user()->id);
             }
             $list_order->whereYear('tgl_order', '=', $year);
-            $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%']]);
+            $list_order->where([['status_bayar', 'LIKE', '%' . $status . '%'], ['jenis_bayar', 'LIKE', '%' . $jenis . '%'], ['status_terima', 'LIKE', '%' . $status_trm . '%']]);
             $list_order->latest()->get();
 
             $data_tables = DataTables::of($list_order);
@@ -108,9 +119,9 @@ class Percetakan extends UserBaseController
             $data_tables->addColumn('dasar_jenis', function ($row) {
                 $bg = 'warning';
                 if ($row->rincian_cetakan->dasar_jenis == 'lesan') {
-                    $bg = 'secondary';
+                    $bg = 'light';
                 }
-                return '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . ucfirst($row->rincian_cetakan->dasar_jenis) . '</span>';
+                return '<span class="badge bg-' . $bg . ' text-dark border border-dark w-75">' . ucfirst($row->rincian_cetakan->dasar_jenis) . '</span>';
             });
             $raw_columns[] = 'dasar_jenis';
 
@@ -169,12 +180,34 @@ class Percetakan extends UserBaseController
             });
             $raw_columns[] = 'jenis_bayar';
 
+            $data_tables->editColumn('status_terima', function ($row) use ($status_terima) {
+                if ($row->status_terima == 0) {
+                    $bg = 'secondary';
+                    $col_sts_byr =  '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_terima[$row->status_terima] . '</span>';
+                    if ($this->is_role) {
+                        $col_sts_byr .= "<div class='mt-1'>
+                                            <button type='button' class='btn btn-sm btn-danger text-sm-b p-1 w-75' 
+                                            data-post='" . json_encode(['id' => encode($row->id)]) . "'
+                                            data-link='" . url('transaksi/in/percetakan/change/statusterima') . "'
+                                            data-table='list_data' 
+                                            data-title='Ubah status terima (" . $row->no_order . ")'
+                                            data-text='Status terima akan diubah menjadi DITERIMA?'
+                                            onclick='confirmDialog(this, false)' title='Ubah Status Terima'>Ubah Status</button>
+                                        </div>";
+                    }
+                    return $col_sts_byr;
+                } else {
+                    $bg = 'warning';
+                    return '<span class="badge rounded-pill bg-' . $bg . ' w-75">' . $status_terima[$row->status_terima] . '</span>';
+                }
+            });
+            $raw_columns[] = 'status_terima';
+
             if ($this->is_role) {
                 $data_tables->addColumn('check_all', function ($row) {
                     $check = '<div class="form-check"> <input type="checkbox" class="form-check-input" onchange="onCheckChange(this)" name="select_row[]" id="select_row_' . $row->id . '" value="' . $row->id . '"> </div>';
                     return $check;
                 });
-
 
                 $raw_columns[] = 'check_all';
             }
@@ -324,6 +357,7 @@ class Percetakan extends UserBaseController
             // =========================================================
             'dasar_jenis' => 'required|in:lesan,surat',
             'dasar_tgl'  => 'required|date_format:d/m/Y',
+            'status_terima'  => 'required|numeric|between:0,1',
             // 'dasar_nomor'  => 'string|nullable',
             // 'dasar_oleh'  => 'string|nullable',
             'tgl_selesai'  => 'required|date_format:d/m/Y',
@@ -371,6 +405,7 @@ class Percetakan extends UserBaseController
                 'jenis_order' => ($request->dasar_jenis == 'lesan' ? 'langsung' : 'dokumen'),
                 // 'status_bayar' => $request->status_bayar,
                 'jenis_bayar' => $request->jenis_bayar,
+                'status_terima' => $request->status_terima,
                 // 'total_bayar' => $request->total_bayar,
             ];
 
@@ -549,6 +584,32 @@ class Percetakan extends UserBaseController
 
             DB::commit();
             $res = ['response' => true, 'text' => 'Berhasil ubah jenis bayar'];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            $res = ['response' => false, 'text' => $e->getMessage()];
+        }
+
+        return json_encode($res);
+    }
+
+    public function changeStatusTerima(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $data_order = [
+                'status_terima' => 1,
+            ];
+
+            $order_id = decode($request->id);
+
+            $order = Order::find($order_id)->update($data_order);
+
+            if (!$order) {
+                throw new \Exception("Gagal ubah status terima");
+            }
+
+            DB::commit();
+            $res = ['response' => true, 'text' => 'Berhasil ubah status terima'];
         } catch (\Exception $e) {
             DB::rollBack();
             $res = ['response' => false, 'text' => $e->getMessage()];
